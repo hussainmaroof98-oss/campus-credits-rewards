@@ -115,11 +115,11 @@ function LeaderboardPage() {
 
   return (
     <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
+      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
         <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
         <div className="blob -right-28 top-72 h-72 w-72 bg-sand/8" />
 
-        <div className="relative px-5 pb-16 pt-6">
+        <div className="relative flex-1 px-5 pb-16 pt-6">
           <header className="flex items-center gap-3">
             <button
               onClick={() => navigate({ to: "/" })}
@@ -328,7 +328,7 @@ function LeaderboardPage() {
 
         {/* Sticky "your rank" bar */}
         {tab === "students" && myRow && (
-          <div className="sticky bottom-0 z-20 border-t border-border bg-surface/85 px-5 py-3 backdrop-blur-xl">
+          <div className="sticky bottom-0 z-20 mt-auto border-t border-border bg-surface/85 px-5 py-3 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <span className="w-6 text-center font-display text-sm font-bold text-teal-light">
                 {myIndex + 1}
