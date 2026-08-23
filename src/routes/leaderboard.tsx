@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Crown, Medal, Trophy, Users } from "lucide-react";
+import { ArrowLeft, Crown, GraduationCap, Medal, Trophy, Users } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { loadSession, type StudentSession } from "@/lib/session";
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/leaderboard")({
   }),
 });
 
-type Tab = "students" | "classes";
+type Tab = "students" | "myclass" | "classes";
 
 type StudentRow = {
   id: string;
@@ -100,14 +100,26 @@ function LeaderboardPage() {
     },
   });
 
-  const rows = useMemo(() => students ?? [], [students]);
+  const allRows = useMemo(() => students ?? [], [students]);
+  const rows = useMemo(() => {
+    if (tab !== "myclass" || !student) return allRows;
+    return allRows.filter(
+      (r) =>
+        r.section === student.section &&
+        r.branch === student.branch &&
+        r.year === student.year,
+    );
+  }, [allRows, tab, student]);
   const top3 = rows.slice(0, 3);
   const rest = rows.slice(3);
   const myIndex = rows.findIndex((r) => r.id === student?.id);
   const myRow = myIndex >= 0 ? rows[myIndex] : null;
   const leaderBalance = rows[0]?.credit_balance ?? 1;
+  const classLabel = student
+    ? `${student.branch.split(" ").pop()}-${student.section}`
+    : "";
 
-  const isLoading = tab === "students" ? loadingStudents : loadingClasses;
+  const isLoading = tab === "classes" ? loadingClasses : loadingStudents;
 
   // Podium display order: 2nd, 1st, 3rd
   const podium = [top3[1], top3[0], top3[2]];
@@ -135,16 +147,18 @@ function LeaderboardPage() {
           </header>
 
           {/* Segmented control */}
-          <div className="relative mt-5 grid grid-cols-2 rounded-2xl border border-border bg-surface/70 p-1">
+          <div className="relative mt-5 grid grid-cols-3 rounded-2xl border border-border bg-surface/70 p-1">
             <span
               className={cn(
-                "absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-xl bg-teal-deep/45 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                tab === "classes" && "translate-x-[calc(100%+0.0rem)]",
+                "absolute inset-y-1 left-1 w-[calc(33.333%-0.1667rem)] rounded-xl bg-teal-deep/45 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                tab === "myclass" && "translate-x-[calc(100%+0.25rem)]",
+                tab === "classes" && "translate-x-[calc(200%+0.5rem)]",
               )}
             />
             {(
               [
-                { key: "students", label: "Students", Icon: Trophy },
+                { key: "students", label: "Campus", Icon: Trophy },
+                { key: "myclass", label: "My Class", Icon: GraduationCap },
                 { key: "classes", label: "Classes", Icon: Users },
               ] as const
             ).map(({ key, label, Icon }) => (
@@ -152,7 +166,7 @@ function LeaderboardPage() {
                 key={key}
                 onClick={() => setTab(key)}
                 className={cn(
-                  "relative z-10 flex items-center justify-center gap-2 rounded-xl py-2 text-[13px] font-medium transition-colors duration-200",
+                  "relative z-10 flex items-center justify-center gap-1.5 rounded-xl py-2 text-[12px] font-medium transition-colors duration-200",
                   tab === key ? "text-foreground" : "text-muted-foreground hover:text-foreground/80",
                 )}
               >
@@ -161,6 +175,26 @@ function LeaderboardPage() {
               </button>
             ))}
           </div>
+
+          {tab === "myclass" && student && (
+            <div className="animate-rise mt-4 flex items-center justify-between rounded-2xl border border-teal/40 bg-teal-deep/20 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  Your class
+                </p>
+                <p className="truncate font-display text-sm font-bold">
+                  {classLabel} · Year {student.year}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-display text-lg font-bold text-cream">
+                  {myIndex >= 0 ? `#${myIndex + 1}` : "—"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">of {rows.length} students</p>
+              </div>
+            </div>
+          )}
+
 
           {isLoading ? (
             <div className="mt-6 space-y-3">
@@ -172,7 +206,7 @@ function LeaderboardPage() {
                 />
               ))}
             </div>
-          ) : tab === "students" ? (
+          ) : tab !== "classes" ? (
             <>
               {/* Podium */}
               <section className="mt-6 animate-rise rounded-3xl border border-border bg-surface/60 px-3 pb-3 pt-5">
@@ -327,7 +361,7 @@ function LeaderboardPage() {
         </div>
 
         {/* Sticky "your rank" bar */}
-        {tab === "students" && myRow && (
+        {tab !== "classes" && myRow && (
           <div className="sticky bottom-0 z-20 mt-auto border-t border-border bg-surface/85 px-5 py-3 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <span className="w-6 text-center font-display text-sm font-bold text-teal-light">
