@@ -95,14 +95,13 @@ function LeaderboardPage() {
   const { data: classes, isLoading: loadingClasses } = useQuery({
     queryKey: ["leaderboard", "classes"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("classes")
-        .select("id, section, branch, year, normalized_score")
-        .order("normalized_score", { ascending: false });
+      // Normalized by average points per student, so class size never gives an edge.
+      const { data, error } = await supabase.rpc("class_leaderboard");
       if (error) throw error;
       return (data ?? []) as ClassRow[];
     },
   });
+
 
   const allRows = useMemo(() => students ?? [], [students]);
   const rows = useMemo(() => {
