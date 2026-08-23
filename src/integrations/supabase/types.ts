@@ -14,6 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      classes: {
+        Row: {
+          branch: string
+          created_at: string
+          id: string
+          normalized_score: number
+          section: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          branch: string
+          created_at?: string
+          id?: string
+          normalized_score?: number
+          section: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          id?: string
+          normalized_score?: number
+          section?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          date: string | null
+          description: string | null
+          id: string
+          status: string
+          team_required: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          team_required?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          date?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          team_required?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      point_ledger: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          points: number
+          source: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          points: number
+          source: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          points?: number
+          source?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "point_ledger_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           branch: string
@@ -56,12 +157,104 @@ export type Database = {
         }
         Relationships: []
       }
+      redemptions: {
+        Row: {
+          created_at: string
+          id: string
+          points_cost: number
+          reward_name: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points_cost: number
+          reward_name: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points_cost?: number
+          reward_name?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redemptions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          branch: string
+          created_at: string
+          credit_balance: number
+          enrollment_number: string
+          id: string
+          name: string
+          password_hash: string
+          personal_rank: number | null
+          section: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          branch: string
+          created_at?: string
+          credit_balance?: number
+          enrollment_number: string
+          id?: string
+          name: string
+          password_hash: string
+          personal_rank?: number | null
+          section: string
+          updated_at?: string
+          year?: number
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          credit_balance?: number
+          enrollment_number?: string
+          id?: string
+          name?: string
+          password_hash?: string
+          personal_rank?: number | null
+          section?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      student_login: {
+        Args: { p_enrollment_number: string; p_password: string }
+        Returns: {
+          branch: string
+          credit_balance: number
+          enrollment_number: string
+          id: string
+          name: string
+          personal_rank: number
+          section: string
+          year: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
