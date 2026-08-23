@@ -340,7 +340,11 @@ function LeaderboardPage() {
                           </span>
                         )}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">Year {c.year}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        Year {c.year} · {Math.round(Number(c.avg_points)).toLocaleString("en-IN")} avg
+                        pts · {c.student_count} students
+                      </p>
+
                       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-input">
                         <span
                           className="block h-full rounded-full bg-gradient-to-r from-teal-deep to-sand transition-[width] duration-700 ease-out"
