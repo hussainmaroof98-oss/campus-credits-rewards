@@ -147,16 +147,18 @@ function LeaderboardPage() {
           </header>
 
           {/* Segmented control */}
-          <div className="relative mt-5 grid grid-cols-2 rounded-2xl border border-border bg-surface/70 p-1">
+          <div className="relative mt-5 grid grid-cols-3 rounded-2xl border border-border bg-surface/70 p-1">
             <span
               className={cn(
-                "absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-xl bg-teal-deep/45 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                tab === "classes" && "translate-x-[calc(100%+0.0rem)]",
+                "absolute inset-y-1 left-1 w-[calc(33.333%-0.1667rem)] rounded-xl bg-teal-deep/45 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                tab === "myclass" && "translate-x-[calc(100%+0.25rem)]",
+                tab === "classes" && "translate-x-[calc(200%+0.5rem)]",
               )}
             />
             {(
               [
-                { key: "students", label: "Students", Icon: Trophy },
+                { key: "students", label: "Campus", Icon: Trophy },
+                { key: "myclass", label: "My Class", Icon: GraduationCap },
                 { key: "classes", label: "Classes", Icon: Users },
               ] as const
             ).map(({ key, label, Icon }) => (
@@ -164,7 +166,7 @@ function LeaderboardPage() {
                 key={key}
                 onClick={() => setTab(key)}
                 className={cn(
-                  "relative z-10 flex items-center justify-center gap-2 rounded-xl py-2 text-[13px] font-medium transition-colors duration-200",
+                  "relative z-10 flex items-center justify-center gap-1.5 rounded-xl py-2 text-[12px] font-medium transition-colors duration-200",
                   tab === key ? "text-foreground" : "text-muted-foreground hover:text-foreground/80",
                 )}
               >
@@ -173,6 +175,26 @@ function LeaderboardPage() {
               </button>
             ))}
           </div>
+
+          {tab === "myclass" && student && (
+            <div className="animate-rise mt-4 flex items-center justify-between rounded-2xl border border-teal/40 bg-teal-deep/20 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  Your class
+                </p>
+                <p className="truncate font-display text-sm font-bold">
+                  {classLabel} · Year {student.year}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-display text-lg font-bold text-cream">
+                  {myIndex >= 0 ? `#${myIndex + 1}` : "—"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">of {rows.length} students</p>
+              </div>
+            </div>
+          )}
+
 
           {isLoading ? (
             <div className="mt-6 space-y-3">
