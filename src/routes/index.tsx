@@ -30,9 +30,9 @@ export const Route = createFileRoute("/")({
 });
 
 const actions = [
-  { label: "Redeem", icon: Gift },
-  { label: "Events", icon: CalendarDays },
-  { label: "Leaderboard", icon: Trophy },
+  { label: "Redeem", icon: Gift, to: null },
+  { label: "Events", icon: CalendarDays, to: null },
+  { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
 ];
 
 const sourceIcon = {
@@ -164,9 +164,10 @@ function Home() {
           </section>
 
           <section className="mt-5 grid grid-cols-3 gap-2.5">
-            {actions.map(({ label, icon: Icon }) => (
+            {actions.map(({ label, icon: Icon, to }) => (
               <button
                 key={label}
+                onClick={() => to && navigate({ to })}
                 className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-2 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-lift)]"
               >
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-teal-deep/25 text-teal-light transition-colors group-hover:bg-teal-deep/35">

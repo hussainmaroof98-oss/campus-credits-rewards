@@ -242,6 +242,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      student_leaderboard: {
+        Args: never
+        Returns: {
+          branch: string
+          credit_balance: number
+          id: string
+          name: string
+          personal_rank: number
+          section: string
+          year: number
+        }[]
+      }
       student_login: {
         Args: { p_enrollment_number: string; p_password: string }
         Returns: {
