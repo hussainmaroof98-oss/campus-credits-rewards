@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Crown, Medal, Trophy, Users } from "lucide-react";
+import { ArrowLeft, Crown, GraduationCap, Medal, Trophy, Users } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { loadSession, type StudentSession } from "@/lib/session";
@@ -206,7 +206,7 @@ function LeaderboardPage() {
                 />
               ))}
             </div>
-          ) : tab === "students" ? (
+          ) : tab !== "classes" ? (
             <>
               {/* Podium */}
               <section className="mt-6 animate-rise rounded-3xl border border-border bg-surface/60 px-3 pb-3 pt-5">
@@ -361,7 +361,7 @@ function LeaderboardPage() {
         </div>
 
         {/* Sticky "your rank" bar */}
-        {tab === "students" && myRow && (
+        {tab !== "classes" && myRow && (
           <div className="sticky bottom-0 z-20 mt-auto border-t border-border bg-surface/85 px-5 py-3 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <span className="w-6 text-center font-display text-sm font-bold text-teal-light">
