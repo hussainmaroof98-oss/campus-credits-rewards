@@ -7,7 +7,7 @@ export function ProgressRing({ value, rank }: { value: number; rank: string }) {
         <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="var(--teal)" />
           <stop offset="60%" stopColor="var(--teal)" />
-          <stop offset="100%" stopColor="var(--teal-light)" />
+          <stop offset="100%" stopColor="var(--teal-deep)" />
         </linearGradient>
       </defs>
       <circle cx="40" cy="40" r={r} fill="none" stroke="var(--input)" strokeWidth="7" />
