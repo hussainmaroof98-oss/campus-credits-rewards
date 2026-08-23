@@ -29,7 +29,7 @@ export const Route = createFileRoute("/leaderboard")({
   }),
 });
 
-type Tab = "students" | "classes";
+type Tab = "students" | "myclass" | "classes";
 
 type StudentRow = {
   id: string;
