@@ -47,7 +47,11 @@ type ClassRow = {
   branch: string;
   year: number;
   normalized_score: number;
+  avg_points: number;
+  student_count: number;
+  rank: number;
 };
+
 
 function initials(name: string) {
   return name
