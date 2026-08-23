@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          branch: string
+          class_rank: string
+          created_at: string
+          credit_balance: number
+          enrollment_number: string
+          full_name: string
+          id: string
+          personal_rank: string
+          section: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          branch?: string
+          class_rank?: string
+          created_at?: string
+          credit_balance?: number
+          enrollment_number: string
+          full_name?: string
+          id: string
+          personal_rank?: string
+          section?: string
+          updated_at?: string
+          year?: number
+        }
+        Update: {
+          branch?: string
+          class_rank?: string
+          created_at?: string
+          credit_balance?: number
+          enrollment_number?: string
+          full_name?: string
+          id?: string
+          personal_rank?: string
+          section?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
