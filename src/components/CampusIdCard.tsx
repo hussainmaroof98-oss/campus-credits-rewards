@@ -1,0 +1,77 @@
+import { useEffect, useState } from "react";
+import { ArrowUpRight, Cpu } from "lucide-react";
+
+function useCountUp(target: number, duration = 1200) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round(target * eased));
+      if (p < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, duration]);
+  return value;
+}
+
+function StatChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex-1 rounded-2xl px-3 py-2.5 glass">
+      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground/65">
+        {label}
+      </p>
+      <p className="mt-0.5 font-display text-lg font-bold leading-none text-foreground">{value}</p>
+    </div>
+  );
+}
+
+export function CampusIdCard() {
+  const balance = useCountUp(2480);
+
+  return (
+    <div className="relative overflow-hidden rounded-[28px] card-mesh p-5 pb-4">
+      {/* holographic sheen */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-y-[-40%] left-0 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-white/45 to-transparent" />
+      </div>
+
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/70">
+            Digital Campus ID
+          </p>
+          <p className="mt-1 font-display text-sm font-medium text-foreground/90">
+            Aarav Mehta · CSE-A
+          </p>
+        </div>
+        <div className="grid h-9 w-12 place-items-center rounded-lg border border-white/30 bg-gradient-to-br from-gold/90 to-gold/40">
+          <Cpu className="h-4 w-4 text-black/60" />
+        </div>
+      </div>
+
+      <div className="relative mt-7">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/70">
+          Credit balance
+        </p>
+        <div className="mt-1 flex items-end gap-3">
+          <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-gold drop-shadow-[0_2px_0_rgba(0,0,0,0.35)]">
+            {balance.toLocaleString("en-IN")}
+          </span>
+          <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-black/25 px-2 py-1 text-[11px] font-semibold text-success">
+            <ArrowUpRight className="h-3 w-3" />
+            120 this week
+          </span>
+        </div>
+      </div>
+
+      <div className="relative mt-6 flex gap-2.5">
+        <StatChip label="Personal rank" value="#12 / 240" />
+        <StatChip label="Class rank" value="#3 / 8" />
+      </div>
+    </div>
+  );
+}
