@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { saveSession, type StudentSession } from "@/lib/session";
 
 export const Route = createFileRoute("/login")({
   ssr: false,
@@ -33,26 +34,39 @@ function LoginPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
+
     const id = enrollment.trim();
     if (!id || !password) {
-      setError("Invalid enrollment number or password");
+      setError("Enter both your enrollment number and password");
       return;
     }
+
     setLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: `${id.toLowerCase()}@campcredit.local`,
-      password,
+    // ---------------------------------------------------------------------
+    // PLACEHOLDER AUTHENTICATION
+    // Mock login against the `students` table via the `student_login` database
+    // function (verifies a demo password hash, never returns password data).
+    // TODO: replace with the real university SSO / LDAP integration once the
+    // university data partnership is live.
+    // ---------------------------------------------------------------------
+    const { data, error: rpcError } = await supabase.rpc("student_login", {
+      p_enrollment_number: id,
+      p_password: password,
     });
     setLoading(false);
-    if (signInError) {
+
+    const student = Array.isArray(data) ? data[0] : null;
+    if (rpcError || !student) {
       setError("Invalid enrollment number or password");
       return;
     }
+
+    saveSession(student as StudentSession);
     navigate({ to: "/", replace: true });
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.262_0.028_261)] py-0 sm:py-8">
+    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
       <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
         <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
         <div className="blob -right-24 bottom-0 h-72 w-72 bg-teal-light/10" />
@@ -65,7 +79,7 @@ function LoginPage() {
             <p className="mt-2 text-sm text-muted-foreground">Your campus, your credit.</p>
           </div>
 
-          <form onSubmit={onSubmit} className="mt-12 space-y-4">
+          <form onSubmit={onSubmit} noValidate className="mt-12 space-y-4">
             <div>
               <label
                 htmlFor="enrollment"
@@ -78,7 +92,8 @@ function LoginPage() {
                 value={enrollment}
                 onChange={(e) => setEnrollment(e.target.value)}
                 autoComplete="username"
-                className="mt-1.5 w-full rounded-2xl border border-border bg-surface/70 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/50"
+                aria-invalid={Boolean(error)}
+                className="mt-1.5 w-full rounded-2xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/40"
                 placeholder="2023CSE042"
               />
             </div>
@@ -96,11 +111,15 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                className="mt-1.5 w-full rounded-2xl border border-border bg-surface/70 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/50"
+                aria-invalid={Boolean(error)}
+                className="mt-1.5 w-full rounded-2xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/40"
                 placeholder="••••••••"
               />
               {error ? (
-                <p className="mt-2 text-xs font-medium text-destructive" role="alert">
+                <p
+                  role="alert"
+                  className="mt-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+                >
                   {error}
                 </p>
               ) : null}
@@ -118,14 +137,9 @@ function LoginPage() {
               {loading ? "Logging in…" : "Log In"}
             </button>
 
-            <div className="pt-1 text-center">
-              <button
-                type="button"
-                className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                Forgot password?
-              </button>
-            </div>
+            <p className="pt-1 text-center text-xs text-muted-foreground">
+              Forgot password? Contact your university IT helpdesk
+            </p>
           </form>
         </div>
       </div>
