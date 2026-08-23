@@ -77,19 +77,16 @@ function Home() {
     },
   });
 
-  const { data: classRow } = useQuery({
-    queryKey: ["class", student?.branch, student?.section, student?.year],
-    enabled: Boolean(student),
+  // All ranks / balances / class score are computed from the point ledger server-side.
+  const { data: stats } = useQuery({
+    queryKey: ["stats", student?.id],
+    enabled: Boolean(student?.id),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("classes")
-        .select("normalized_score")
-        .eq("branch", student!.branch)
-        .eq("section", student!.section)
-        .eq("year", student!.year)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc("student_stats", {
+        p_student_id: student!.id,
+      });
       if (error) throw error;
-      return data;
+      return (data ?? [])[0] ?? null;
     },
   });
 
@@ -99,10 +96,14 @@ function Home() {
   }
 
   const firstName = (student?.name || "").split(" ")[0] || "there";
-  const classScore = Number(classRow?.normalized_score ?? 72);
-  const weekDelta = (ledger ?? [])
-    .filter((e) => Date.now() - new Date(e.created_at).getTime() < 7 * 86_400_000)
-    .reduce((sum, e) => sum + e.points, 0);
+  const classScore = Number(stats?.normalized_score ?? 0);
+  const weekDelta = stats?.week_delta ?? 0;
+  const ordinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
+  };
+
 
   return (
     <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
@@ -146,22 +147,37 @@ function Home() {
               subtitle={
                 student ? `${student.branch.split(" ").pop()}-${student.section}` : "Campus"
               }
-              balance={student?.credit_balance ?? 0}
+              balance={stats?.credit_balance ?? student?.credit_balance ?? 0}
               delta={weekDelta}
-              personalRank={student?.personal_rank ? `#${student.personal_rank} / 240` : "—"}
-              classRank={`#3 / 8`}
+              personalRank={
+                stats ? `#${stats.personal_rank} / ${stats.total_students}` : "—"
+              }
+              classRank={stats ? `#${stats.class_rank} / ${stats.class_size}` : "—"}
             />
           </section>
 
           <section className="mt-5 flex items-center gap-4 rounded-3xl border border-border bg-surface/80 p-4">
-            <ProgressRing value={classScore} rank="3rd" />
+            <ProgressRing
+              value={classScore}
+              rank={stats ? ordinal(stats.class_position ?? 0) : "—"}
+            />
             <div>
-              <p className="text-sm font-semibold leading-snug">3rd place course-wide</p>
+              <p className="text-sm font-semibold leading-snug">
+                {stats
+                  ? `${ordinal(stats.class_position ?? 0)} place course-wide`
+                  : "Ranking your class…"}
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                40 pts behind CSE-B · class score {Math.round(classScore)}/100
+                {stats?.next_class_label
+                  ? `${Math.round(Number(stats.points_behind_next_class))} avg pts behind ${stats.next_class_label} · `
+                  : stats
+                    ? "Leading all classes · "
+                    : ""}
+                class score {Math.round(classScore)}/100
               </p>
             </div>
           </section>
+
 
           <section className="mt-5 grid grid-cols-3 gap-2.5">
             {actions.map(({ label, icon: Icon, to }) => (

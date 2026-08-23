@@ -47,7 +47,11 @@ type ClassRow = {
   branch: string;
   year: number;
   normalized_score: number;
+  avg_points: number;
+  student_count: number;
+  rank: number;
 };
+
 
 function initials(name: string) {
   return name
@@ -91,14 +95,13 @@ function LeaderboardPage() {
   const { data: classes, isLoading: loadingClasses } = useQuery({
     queryKey: ["leaderboard", "classes"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("classes")
-        .select("id, section, branch, year, normalized_score")
-        .order("normalized_score", { ascending: false });
+      // Normalized by average points per student, so class size never gives an edge.
+      const { data, error } = await supabase.rpc("class_leaderboard");
       if (error) throw error;
       return (data ?? []) as ClassRow[];
     },
   });
+
 
   const allRows = useMemo(() => students ?? [], [students]);
   const rows = useMemo(() => {
@@ -337,7 +340,11 @@ function LeaderboardPage() {
                           </span>
                         )}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">Year {c.year}</p>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        Year {c.year} · {Math.round(Number(c.avg_points)).toLocaleString("en-IN")} avg
+                        pts · {c.student_count} students
+                      </p>
+
                       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-input">
                         <span
                           className="block h-full rounded-full bg-gradient-to-r from-teal-deep to-sand transition-[width] duration-700 ease-out"

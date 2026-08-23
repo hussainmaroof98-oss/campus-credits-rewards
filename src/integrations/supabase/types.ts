@@ -242,6 +242,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      class_leaderboard: {
+        Args: never
+        Returns: {
+          avg_points: number
+          branch: string
+          id: string
+          normalized_score: number
+          rank: number
+          section: string
+          student_count: number
+          year: number
+        }[]
+      }
+      recompute_campus_stats: { Args: never; Returns: undefined }
       student_leaderboard: {
         Args: never
         Returns: {
@@ -265,6 +279,22 @@ export type Database = {
           personal_rank: number
           section: string
           year: number
+        }[]
+      }
+      student_stats: {
+        Args: { p_student_id: string }
+        Returns: {
+          class_count: number
+          class_position: number
+          class_rank: number
+          class_size: number
+          credit_balance: number
+          next_class_label: string
+          normalized_score: number
+          personal_rank: number
+          points_behind_next_class: number
+          total_students: number
+          week_delta: number
         }[]
       }
     }
