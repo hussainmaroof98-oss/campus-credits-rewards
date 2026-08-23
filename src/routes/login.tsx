@@ -52,10 +52,10 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.31_0.035_249.5)] py-0 sm:py-8">
+    <main className="flex min-h-screen justify-center bg-[oklch(0.262_0.028_261)] py-0 sm:py-8">
       <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/25" />
-        <div className="blob -right-24 bottom-0 h-72 w-72 bg-teal-light/15" />
+        <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
+        <div className="blob -right-24 bottom-0 h-72 w-72 bg-teal-light/10" />
 
         <div className="relative flex min-h-screen flex-col px-6 pb-12 pt-24 sm:min-h-[720px]">
           <div className="animate-rise text-center">

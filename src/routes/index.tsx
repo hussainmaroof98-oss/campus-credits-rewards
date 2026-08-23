@@ -86,10 +86,10 @@ function Home() {
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.31_0.035_249.5)] py-0 sm:py-8">
+    <main className="flex min-h-screen justify-center bg-[oklch(0.262_0.028_261)] py-0 sm:py-8">
       <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-16 h-64 w-64 bg-teal/25" />
-        <div className="blob -right-24 top-64 h-72 w-72 bg-teal-light/15" />
+        <div className="blob -left-24 -top-16 h-64 w-64 bg-teal/12" />
+        <div className="blob -right-24 top-64 h-72 w-72 bg-teal-light/10" />
 
         <div className="relative px-5 pb-14 pt-6">
           <header className="flex items-center justify-between">
@@ -173,7 +173,7 @@ function Home() {
                       <p className="text-sm font-semibold leading-tight">{item.title}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{item.meta}</p>
                     </div>
-                    <span className="font-mono text-sm font-bold text-cream">{item.points}</span>
+                    <span className="font-mono text-sm font-bold text-pale-blue">{item.points}</span>
                   </div>
                 </li>
               ))}
