@@ -147,22 +147,37 @@ function Home() {
               subtitle={
                 student ? `${student.branch.split(" ").pop()}-${student.section}` : "Campus"
               }
-              balance={student?.credit_balance ?? 0}
+              balance={stats?.credit_balance ?? student?.credit_balance ?? 0}
               delta={weekDelta}
-              personalRank={student?.personal_rank ? `#${student.personal_rank} / 240` : "—"}
-              classRank={`#3 / 8`}
+              personalRank={
+                stats ? `#${stats.personal_rank} / ${stats.total_students}` : "—"
+              }
+              classRank={stats ? `#${stats.class_rank} / ${stats.class_size}` : "—"}
             />
           </section>
 
           <section className="mt-5 flex items-center gap-4 rounded-3xl border border-border bg-surface/80 p-4">
-            <ProgressRing value={classScore} rank="3rd" />
+            <ProgressRing
+              value={classScore}
+              rank={stats ? ordinal(stats.class_position ?? 0) : "—"}
+            />
             <div>
-              <p className="text-sm font-semibold leading-snug">3rd place course-wide</p>
+              <p className="text-sm font-semibold leading-snug">
+                {stats
+                  ? `${ordinal(stats.class_position ?? 0)} place course-wide`
+                  : "Ranking your class…"}
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                40 pts behind CSE-B · class score {Math.round(classScore)}/100
+                {stats?.next_class_label
+                  ? `${Math.round(Number(stats.points_behind_next_class))} avg pts behind ${stats.next_class_label} · `
+                  : stats
+                    ? "Leading all classes · "
+                    : ""}
+                class score {Math.round(classScore)}/100
               </p>
             </div>
           </section>
+
 
           <section className="mt-5 grid grid-cols-3 gap-2.5">
             {actions.map(({ label, icon: Icon, to }) => (
