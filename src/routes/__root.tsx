@@ -73,6 +73,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // SPA / client-only rendering: this app is wrapped with Capacitor into a
+  // native shell, so nothing may render on the server. ssr: false on the root
+  // route opts the entire route tree out of SSR — keep it that way and use
+  // client-side data fetching (no server loaders / server functions).
+  ssr: false,
   head: () => ({
     meta: [
       { charSet: "utf-8" },

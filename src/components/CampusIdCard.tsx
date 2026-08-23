@@ -31,12 +31,14 @@ export function CampusIdCard({
   name,
   subtitle,
   balance: target,
+  delta,
   personalRank,
   classRank,
 }: {
   name: string;
   subtitle: string;
   balance: number;
+  delta: number;
   personalRank: string;
   classRank: string;
 }) {
@@ -51,20 +53,20 @@ export function CampusIdCard({
 
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
             Digital Campus ID
           </p>
-          <p className="mt-1 font-display text-sm font-medium text-white">
+          <p className="mt-1 font-display text-sm font-medium text-cream">
             {name} · {subtitle}
           </p>
         </div>
         <div className="grid h-9 w-12 place-items-center rounded-lg border border-white/30 bg-white/25">
-          <Cpu className="h-4 w-4 text-white/80" />
+          <Cpu className="h-4 w-4 text-white/70" />
         </div>
       </div>
 
       <div className="relative mt-7">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
           Credit balance
         </p>
         <div className="mt-1 flex items-end gap-3">
@@ -73,7 +75,7 @@ export function CampusIdCard({
           </span>
           <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-white/22 px-2 py-1 text-[11px] font-semibold text-white">
             <ArrowUpRight className="h-3 w-3" />
-            120 this week
+            {delta > 0 ? `+${delta}` : delta} this week
           </span>
         </div>
       </div>
