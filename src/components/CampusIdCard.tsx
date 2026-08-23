@@ -46,7 +46,7 @@ export function CampusIdCard({
     <div className="relative overflow-hidden rounded-[28px] card-hero p-5 pb-4">
       {/* single soft light sweep */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-y-[-40%] left-0 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+        <div className="absolute inset-y-[-40%] left-0 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-white/22 to-transparent" />
       </div>
 
       <div className="relative flex items-start justify-between">
@@ -68,10 +68,10 @@ export function CampusIdCard({
           Credit balance
         </p>
         <div className="mt-1 flex items-end gap-3">
-          <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-cream drop-shadow-[0_2px_6px_rgba(20,35,50,0.35)]">
+          <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-cream drop-shadow-[0_1px_4px_rgba(30,40,55,0.22)]">
             {balance.toLocaleString("en-IN")}
           </span>
-          <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-teal px-2 py-1 text-[11px] font-semibold text-white">
+          <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-white/22 px-2 py-1 text-[11px] font-semibold text-white">
             <ArrowUpRight className="h-3 w-3" />
             120 this week
           </span>
