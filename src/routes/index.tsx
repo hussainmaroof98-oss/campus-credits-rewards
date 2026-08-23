@@ -77,19 +77,16 @@ function Home() {
     },
   });
 
-  const { data: classRow } = useQuery({
-    queryKey: ["class", student?.branch, student?.section, student?.year],
-    enabled: Boolean(student),
+  // All ranks / balances / class score are computed from the point ledger server-side.
+  const { data: stats } = useQuery({
+    queryKey: ["stats", student?.id],
+    enabled: Boolean(student?.id),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("classes")
-        .select("normalized_score")
-        .eq("branch", student!.branch)
-        .eq("section", student!.section)
-        .eq("year", student!.year)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc("student_stats", {
+        p_student_id: student!.id,
+      });
       if (error) throw error;
-      return data;
+      return (data ?? [])[0] ?? null;
     },
   });
 
@@ -99,10 +96,14 @@ function Home() {
   }
 
   const firstName = (student?.name || "").split(" ")[0] || "there";
-  const classScore = Number(classRow?.normalized_score ?? 72);
-  const weekDelta = (ledger ?? [])
-    .filter((e) => Date.now() - new Date(e.created_at).getTime() < 7 * 86_400_000)
-    .reduce((sum, e) => sum + e.points, 0);
+  const classScore = Number(stats?.normalized_score ?? 0);
+  const weekDelta = stats?.week_delta ?? 0;
+  const ordinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
+  };
+
 
   return (
     <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
