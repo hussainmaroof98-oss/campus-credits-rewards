@@ -130,7 +130,7 @@
     opacity: 0;
   }
   15% {
-    opacity: 0.5;
+    opacity: 0.32;
   }
   100% {
     transform: translateX(220%) skewX(-18deg);
@@ -159,9 +159,9 @@
 }
 
 @utility glass {
-  background-color: oklch(1 0 0 / 16%);
-  backdrop-filter: blur(18px) saturate(130%);
-  border: 1px solid oklch(1 0 0 / 24%);
+  background-color: oklch(1 0 0 / 12%);
+  backdrop-filter: blur(18px) saturate(115%);
+  border: 1px solid oklch(1 0 0 / 18%);
 }
 
 @utility blob {
@@ -177,7 +177,7 @@
   }
 
   body {
-    background-color: oklch(0.31 0.035 249.5);
+    background-color: oklch(0.262 0.028 261);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
