@@ -21,47 +21,57 @@ function useCountUp(target: number, duration = 1200) {
 function StatChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex-1 rounded-2xl px-3 py-2.5 glass">
-      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground/65">
-        {label}
-      </p>
-      <p className="mt-0.5 font-display text-lg font-bold leading-none text-foreground">{value}</p>
+      <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/75">{label}</p>
+      <p className="mt-0.5 font-display text-lg font-bold leading-none text-white">{value}</p>
     </div>
   );
 }
 
-export function CampusIdCard() {
-  const balance = useCountUp(2480);
+export function CampusIdCard({
+  name,
+  subtitle,
+  balance: target,
+  personalRank,
+  classRank,
+}: {
+  name: string;
+  subtitle: string;
+  balance: number;
+  personalRank: string;
+  classRank: string;
+}) {
+  const balance = useCountUp(target);
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] card-mesh p-5 pb-4">
-      {/* holographic sheen */}
+    <div className="relative overflow-hidden rounded-[28px] card-hero p-5 pb-4">
+      {/* single soft light sweep */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-y-[-40%] left-0 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-white/45 to-transparent" />
+        <div className="absolute inset-y-[-40%] left-0 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-white/35 to-transparent" />
       </div>
 
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/70">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
             Digital Campus ID
           </p>
-          <p className="mt-1 font-display text-sm font-medium text-foreground/90">
-            Aarav Mehta · CSE-A
+          <p className="mt-1 font-display text-sm font-medium text-white">
+            {name} · {subtitle}
           </p>
         </div>
-        <div className="grid h-9 w-12 place-items-center rounded-lg border border-white/30 bg-gradient-to-br from-gold/90 to-gold/40">
-          <Cpu className="h-4 w-4 text-black/60" />
+        <div className="grid h-9 w-12 place-items-center rounded-lg border border-white/30 bg-white/25">
+          <Cpu className="h-4 w-4 text-white/80" />
         </div>
       </div>
 
       <div className="relative mt-7">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/70">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
           Credit balance
         </p>
         <div className="mt-1 flex items-end gap-3">
-          <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-gold drop-shadow-[0_2px_0_rgba(0,0,0,0.35)]">
+          <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-cream drop-shadow-[0_2px_6px_rgba(20,35,50,0.35)]">
             {balance.toLocaleString("en-IN")}
           </span>
-          <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-black/25 px-2 py-1 text-[11px] font-semibold text-success">
+          <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-teal px-2 py-1 text-[11px] font-semibold text-white">
             <ArrowUpRight className="h-3 w-3" />
             120 this week
           </span>
@@ -69,8 +79,8 @@ export function CampusIdCard() {
       </div>
 
       <div className="relative mt-6 flex gap-2.5">
-        <StatChip label="Personal rank" value="#12 / 240" />
-        <StatChip label="Class rank" value="#3 / 8" />
+        <StatChip label="Personal rank" value={personalRank} />
+        <StatChip label="Class rank" value={classRank} />
       </div>
     </div>
   );
