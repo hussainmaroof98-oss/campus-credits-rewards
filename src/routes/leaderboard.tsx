@@ -100,14 +100,26 @@ function LeaderboardPage() {
     },
   });
 
-  const rows = useMemo(() => students ?? [], [students]);
+  const allRows = useMemo(() => students ?? [], [students]);
+  const rows = useMemo(() => {
+    if (tab !== "myclass" || !student) return allRows;
+    return allRows.filter(
+      (r) =>
+        r.section === student.section &&
+        r.branch === student.branch &&
+        r.year === student.year,
+    );
+  }, [allRows, tab, student]);
   const top3 = rows.slice(0, 3);
   const rest = rows.slice(3);
   const myIndex = rows.findIndex((r) => r.id === student?.id);
   const myRow = myIndex >= 0 ? rows[myIndex] : null;
   const leaderBalance = rows[0]?.credit_balance ?? 1;
+  const classLabel = student
+    ? `${student.branch.split(" ").pop()}-${student.section}`
+    : "";
 
-  const isLoading = tab === "students" ? loadingStudents : loadingClasses;
+  const isLoading = tab === "classes" ? loadingClasses : loadingStudents;
 
   // Podium display order: 2nd, 1st, 3rd
   const podium = [top3[1], top3[0], top3[2]];
