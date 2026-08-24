@@ -44,6 +44,51 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          student_id: string
+          team_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          status?: string
+          student_id: string
+          team_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          status?: string
+          student_id?: string
+          team_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_registrations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -255,7 +300,41 @@ export type Database = {
           year: number
         }[]
       }
+      event_teammates: {
+        Args: { p_event_id: string; p_team_name: string }
+        Returns: {
+          name: string
+          student_id: string
+          team_name: string
+        }[]
+      }
+      my_event_registrations: {
+        Args: { p_student_id: string }
+        Returns: {
+          created_at: string
+          date: string
+          description: string
+          event_id: string
+          event_status: string
+          id: string
+          status: string
+          team_name: string
+          team_required: boolean
+          title: string
+        }[]
+      }
       recompute_campus_stats: { Args: never; Returns: undefined }
+      register_for_event: {
+        Args: { p_event_id: string; p_student_id: string; p_team_name?: string }
+        Returns: {
+          created_at: string
+          event_id: string
+          id: string
+          status: string
+          student_id: string
+          team_name: string
+        }[]
+      }
       student_leaderboard: {
         Args: never
         Returns: {
