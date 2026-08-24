@@ -45,7 +45,17 @@ export const Route = createFileRoute("/admin")({
   }),
 });
 
-type Tab = "pending" | "live" | "create";
+type Tab = "pending" | "live" | "create" | "redemptions";
+
+type StaffRedemption = {
+  id: string;
+  student_name: string;
+  enrollment_number: string;
+  reward_name: string;
+  points_cost: number;
+  status: string;
+  created_at: string;
+};
 
 type EventRow = {
   id: string;
