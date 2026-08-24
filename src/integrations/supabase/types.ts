@@ -240,6 +240,36 @@ export type Database = {
           },
         ]
       }
+      staff: {
+        Row: {
+          created_at: string
+          department: string
+          id: string
+          name: string
+          password_hash: string
+          staff_code: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string
+          id?: string
+          name: string
+          password_hash: string
+          staff_code: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          id?: string
+          name?: string
+          password_hash?: string
+          staff_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           branch: string
@@ -333,6 +363,50 @@ export type Database = {
           reg_status: string
           reg_student_id: string
           reg_team_name: string
+        }[]
+      }
+      staff_approve_event: {
+        Args: { p_approve: boolean; p_event_id: string; p_staff_id: string }
+        Returns: {
+          evt_id: string
+          evt_status: string
+        }[]
+      }
+      staff_award_points: {
+        Args: {
+          p_description: string
+          p_event_id: string
+          p_points: number
+          p_staff_id: string
+          p_student_id: string
+        }
+        Returns: {
+          ledger_id: string
+          ledger_points: number
+        }[]
+      }
+      staff_event_registrations: {
+        Args: { p_event_id: string; p_staff_id: string }
+        Returns: {
+          branch: string
+          credit_balance: number
+          enrollment_number: string
+          reg_status: string
+          registration_id: string
+          section: string
+          student_id: string
+          student_name: string
+          team_name: string
+          year: number
+        }[]
+      }
+      staff_login: {
+        Args: { p_password: string; p_staff_code: string }
+        Returns: {
+          department: string
+          id: string
+          name: string
+          staff_code: string
         }[]
       }
       student_leaderboard: {
