@@ -130,7 +130,7 @@ function EventsPage() {
       const { error } = await supabase.rpc("register_for_event", {
         p_student_id: student!.id,
         p_event_id: vars.eventId,
-        p_team_name: vars.team ?? null,
+        p_team_name: vars.team,
       });
       if (error) throw error;
     },
