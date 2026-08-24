@@ -385,6 +385,20 @@ export type Database = {
           ledger_points: number
         }[]
       }
+      staff_create_event: {
+        Args: {
+          p_date?: string
+          p_description?: string
+          p_staff_id: string
+          p_team_required?: boolean
+          p_title: string
+        }
+        Returns: {
+          evt_id: string
+          evt_status: string
+          evt_title: string
+        }[]
+      }
       staff_event_registrations: {
         Args: { p_event_id: string; p_staff_id: string }
         Returns: {
