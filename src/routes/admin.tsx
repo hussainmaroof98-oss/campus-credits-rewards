@@ -6,6 +6,7 @@ import {
   Check,
   ClipboardList,
   LogOut,
+  Gift,
   Plus,
   ShieldCheck,
   Sparkles,
