@@ -448,6 +448,26 @@ export type Database = {
           year: number
         }[]
       }
+      student_register: {
+        Args: {
+          p_branch: string
+          p_enrollment_number: string
+          p_name: string
+          p_password: string
+          p_section: string
+          p_year: number
+        }
+        Returns: {
+          branch: string
+          credit_balance: number
+          enrollment_number: string
+          id: string
+          name: string
+          personal_rank: number
+          section: string
+          year: number
+        }[]
+      }
       student_stats: {
         Args: { p_student_id: string }
         Returns: {
