@@ -265,6 +265,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
     { key: "pending", label: "Pending Approval", icon: ClipboardList, count: pending.length },
     { key: "live", label: "Live Events", icon: Sparkles, count: live.length },
     { key: "create", label: "Create Event", icon: Plus },
+    { key: "redemptions", label: "Redemptions", icon: Gift },
   ];
 
   return (
