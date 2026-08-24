@@ -240,6 +240,39 @@ export type Database = {
           },
         ]
       }
+      rewards: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points_cost: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name: string
+          points_cost: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points_cost?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff: {
         Row: {
           created_at: string
@@ -353,7 +386,25 @@ export type Database = {
           title: string
         }[]
       }
+      my_redemptions: {
+        Args: { p_student_id: string }
+        Returns: {
+          created_at: string
+          id: string
+          points_cost: number
+          reward_name: string
+          status: string
+        }[]
+      }
       recompute_campus_stats: { Args: never; Returns: undefined }
+      redeem_reward: {
+        Args: { p_reward_id: string; p_student_id: string }
+        Returns: {
+          message: string
+          ok: boolean
+          redemption_id: string
+        }[]
+      }
       register_for_event: {
         Args: { p_event_id: string; p_student_id: string; p_team_name?: string }
         Returns: {
@@ -414,6 +465,13 @@ export type Database = {
           year: number
         }[]
       }
+      staff_fulfill_redemption: {
+        Args: { p_redemption_id: string; p_staff_id: string }
+        Returns: {
+          red_id: string
+          red_status: string
+        }[]
+      }
       staff_login: {
         Args: { p_password: string; p_staff_code: string }
         Returns: {
@@ -421,6 +479,18 @@ export type Database = {
           id: string
           name: string
           staff_code: string
+        }[]
+      }
+      staff_pending_redemptions: {
+        Args: { p_staff_id: string }
+        Returns: {
+          created_at: string
+          enrollment_number: string
+          id: string
+          points_cost: number
+          reward_name: string
+          status: string
+          student_name: string
         }[]
       }
       student_leaderboard: {

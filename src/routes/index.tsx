@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
 });
 
 const actions = [
-  { label: "Redeem", icon: Gift, to: null },
+  { label: "Redeem", icon: Gift, to: "/redeem" as const },
   { label: "Events", icon: CalendarDays, to: "/events" as const },
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
 ];
