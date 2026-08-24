@@ -715,3 +715,110 @@ function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated:
     </form>
   );
 }
+
+function RedemptionsPanel({ staff }: { staff: StaffSession }) {
+  const queryClient = useQueryClient();
+  const [error, setError] = useState("");
+
+  const { data: rows, isLoading } = useQuery({
+    queryKey: ["staff-redemptions", staff.id],
+    queryFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("staff_pending_redemptions", {
+        p_staff_id: staff.id,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? []) as StaffRedemption[];
+    },
+  });
+
+  const fulfill = useMutation({
+    mutationFn: async (redemptionId: string) => {
+      const { error: rpcError } = await supabase.rpc("staff_fulfill_redemption", {
+        p_staff_id: staff.id,
+        p_redemption_id: redemptionId,
+      });
+      if (rpcError) throw rpcError;
+    },
+    onSuccess: () => {
+      setError("");
+      queryClient.invalidateQueries({ queryKey: ["staff-redemptions", staff.id] });
+    },
+    onError: () => setError("Could not update that redemption. Please try again."),
+  });
+
+  const pending = (rows ?? []).filter((r) => r.status === "pending");
+  const done = (rows ?? []).filter((r) => r.status !== "pending");
+
+  if (isLoading) return <p className="text-sm text-muted-foreground">Loading redemptions…</p>;
+
+  return (
+    <div className="space-y-8">
+      {error && (
+        <p
+          role="alert"
+          className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive"
+        >
+          {error}
+        </p>
+      )}
+
+      <div>
+        <h2 className={labelClass}>Pending redemptions ({pending.length})</h2>
+        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {pending.map((r, i) => (
+            <article
+              key={r.id}
+              className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]"
+              style={{ animationDelay: `${i * 45}ms` }}
+            >
+              <h3 className="font-display text-base font-bold leading-tight">{r.reward_name}</h3>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                {r.student_name} · {r.enrollment_number}
+              </p>
+              <p className="mt-1 text-[12px] text-muted-foreground">
+                {formatDate(r.created_at.slice(0, 10))} · {r.points_cost.toLocaleString("en-IN")} pts
+              </p>
+              <div className="mt-4 pt-1">
+                <button
+                  disabled={fulfill.isPending}
+                  onClick={() => fulfill.mutate(r.id)}
+                  className={cn(primaryBtn, "flex items-center gap-1.5 px-4 py-2 text-[12px]")}
+                >
+                  <Check className="h-3.5 w-3.5" /> Mark Fulfilled
+                </button>
+              </div>
+            </article>
+          ))}
+          {pending.length === 0 && (
+            <p className="text-sm text-muted-foreground">No pending redemptions right now.</p>
+          )}
+        </div>
+      </div>
+
+      {done.length > 0 && (
+        <div>
+          <h2 className={labelClass}>Fulfilled ({done.length})</h2>
+          <div className="mt-3 space-y-2">
+            {done.map((r) => (
+              <div
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface/50 px-5 py-3"
+              >
+                <span className="text-[13px]">
+                  <span className="font-display font-bold">{r.reward_name}</span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {r.student_name} · {formatDate(r.created_at.slice(0, 10))}
+                  </span>
+                </span>
+                <span className="rounded-full bg-success/20 px-2.5 py-0.5 text-[10px] font-medium capitalize text-success">
+                  {r.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
