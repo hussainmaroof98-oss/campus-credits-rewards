@@ -563,7 +563,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
 /* Create event                                                                */
 /* -------------------------------------------------------------------------- */
 
-function CreateEventForm({ onCreated }: { onCreated: () => void }) {
+function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated: () => void }) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -574,14 +574,14 @@ function CreateEventForm({ onCreated }: { onCreated: () => void }) {
 
   const create = useMutation({
     mutationFn: async () => {
-      const { error: insertError } = await supabase.from("events").insert({
-        title: title.trim(),
-        description: description.trim() || null,
-        date: date || null,
-        team_required: teamRequired,
-        status: "pending_approval",
+      const { error: rpcError } = await supabase.rpc("staff_create_event", {
+        p_staff_id: staff.id,
+        p_title: title.trim(),
+        p_description: description.trim(),
+        p_team_required: teamRequired,
+        ...(date ? { p_date: date } : {}),
       });
-      if (insertError) throw insertError;
+      if (rpcError) throw rpcError;
     },
     onSuccess: () => {
       setTitle("");
