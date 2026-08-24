@@ -138,8 +138,16 @@ function LoginPage() {
             </button>
 
             <p className="pt-1 text-center text-xs text-muted-foreground">
+              New here?{" "}
+              <Link to="/signup" className="font-semibold text-teal-light hover:underline">
+                Sign up
+              </Link>
+            </p>
+
+            <p className="text-center text-xs text-muted-foreground">
               Forgot password? Contact your university IT helpdesk
             </p>
+
           </form>
         </div>
       </div>
