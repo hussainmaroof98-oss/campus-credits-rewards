@@ -369,7 +369,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
           </div>
         )}
 
-        {tab === "create" && <CreateEventForm onCreated={() => setTab("pending")} />}
+        {tab === "create" && <CreateEventForm staff={staff} onCreated={() => setTab("pending")} />}
       </section>
     </div>
   );
