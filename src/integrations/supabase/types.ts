@@ -327,12 +327,12 @@ export type Database = {
       register_for_event: {
         Args: { p_event_id: string; p_student_id: string; p_team_name?: string }
         Returns: {
-          created_at: string
-          event_id: string
-          id: string
-          status: string
-          student_id: string
-          team_name: string
+          reg_created_at: string
+          reg_event_id: string
+          reg_id: string
+          reg_status: string
+          reg_student_id: string
+          reg_team_name: string
         }[]
       }
       student_leaderboard: {
