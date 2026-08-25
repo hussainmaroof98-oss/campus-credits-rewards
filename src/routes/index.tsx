@@ -146,7 +146,15 @@ function Home() {
           </header>
 
           <section className="mt-6 animate-rise">
-            <h1 className="font-display text-2xl font-bold">Hi, {firstName}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-2xl font-bold">Hi, {firstName}</h1>
+              {isPlus && (
+                <span className="flex items-center gap-1 rounded-full border border-sand/40 bg-sand/15 px-2 py-0.5 text-[10px] font-semibold text-sand">
+                  <Crown className="h-3 w-3" />
+                  Campus Plus
+                </span>
+              )}
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {student
                 ? `${student.branch} · Section ${student.section} · Year ${student.year}`
