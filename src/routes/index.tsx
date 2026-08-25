@@ -91,6 +91,18 @@ function Home() {
     },
   });
 
+  const { data: isPlus } = useQuery({
+    queryKey: ["campus-plus", student?.id],
+    enabled: Boolean(student?.id),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("student_campus_plus_status", {
+        p_student_id: student!.id,
+      });
+      if (error) throw error;
+      return Boolean(data?.[0]?.is_campus_plus);
+    },
+  });
+
   function signOut() {
     clearSession();
     navigate({ to: "/login", replace: true });
