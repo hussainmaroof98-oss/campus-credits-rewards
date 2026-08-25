@@ -310,6 +310,7 @@ export type Database = {
           credit_balance: number
           enrollment_number: string
           id: string
+          is_campus_plus: boolean
           name: string
           password_hash: string
           personal_rank: number | null
@@ -323,6 +324,7 @@ export type Database = {
           credit_balance?: number
           enrollment_number: string
           id?: string
+          is_campus_plus?: boolean
           name: string
           password_hash: string
           personal_rank?: number | null
@@ -336,6 +338,7 @@ export type Database = {
           credit_balance?: number
           enrollment_number?: string
           id?: string
+          is_campus_plus?: boolean
           name?: string
           password_hash?: string
           personal_rank?: number | null
@@ -493,6 +496,12 @@ export type Database = {
           student_name: string
         }[]
       }
+      student_campus_plus_status: {
+        Args: { p_student_id: string }
+        Returns: {
+          is_campus_plus: boolean
+        }[]
+      }
       student_leaderboard: {
         Args: never
         Returns: {
@@ -552,6 +561,13 @@ export type Database = {
           points_behind_next_class: number
           total_students: number
           week_delta: number
+        }[]
+      }
+      student_subscribe_campus_plus: {
+        Args: { p_student_id: string }
+        Returns: {
+          is_campus_plus: boolean
+          ok: boolean
         }[]
       }
     }
