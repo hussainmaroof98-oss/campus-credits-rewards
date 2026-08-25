@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Gift, CalendarDays, Trophy, Droplets, GraduationCap, LogOut } from "lucide-react";
+import { Gift, CalendarDays, Trophy, Droplets, GraduationCap, LogOut, Crown } from "lucide-react";
 
 import avatar from "@/assets/avatar-aarav.jpg";
 import { CampusIdCard } from "@/components/CampusIdCard";
