@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CampusPlusRouteImport } from './routes/campus-plus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampusPlusRoute = CampusPlusRouteImport.update({
+  id: '/campus-plus',
+  path: '/campus-plus',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -56,6 +62,7 @@ const SignupRoute = SignupRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/campus-plus': typeof CampusPlusRoute
   '/events': typeof EventsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/campus-plus': typeof CampusPlusRoute
   '/events': typeof EventsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/campus-plus': typeof CampusPlusRoute
   '/events': typeof EventsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/campus-plus'
     | '/events'
     | '/leaderboard'
     | '/login'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/campus-plus'
     | '/events'
     | '/leaderboard'
     | '/login'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/campus-plus'
     | '/events'
     | '/leaderboard'
     | '/login'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CampusPlusRoute: typeof CampusPlusRoute
   EventsRoute: typeof EventsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campus-plus': {
+      id: '/campus-plus'
+      path: '/campus-plus'
+      fullPath: '/campus-plus'
+      preLoaderRoute: typeof CampusPlusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CampusPlusRoute: CampusPlusRoute,
   EventsRoute: EventsRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Gift, CalendarDays, Trophy, Droplets, GraduationCap, LogOut } from "lucide-react";
+import { Gift, CalendarDays, Trophy, Droplets, GraduationCap, LogOut, Crown } from "lucide-react";
 
 import avatar from "@/assets/avatar-aarav.jpg";
 import { CampusIdCard } from "@/components/CampusIdCard";
@@ -33,6 +33,7 @@ const actions = [
   { label: "Redeem", icon: Gift, to: "/redeem" as const },
   { label: "Events", icon: CalendarDays, to: "/events" as const },
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
+  { label: "Campus Plus", icon: Crown, to: "/campus-plus" as const },
 ];
 
 const sourceIcon = {
@@ -90,6 +91,18 @@ function Home() {
     },
   });
 
+  const { data: isPlus } = useQuery({
+    queryKey: ["campus-plus", student?.id],
+    enabled: Boolean(student?.id),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("student_campus_plus_status", {
+        p_student_id: student!.id,
+      });
+      if (error) throw error;
+      return Boolean(data?.[0]?.is_campus_plus);
+    },
+  });
+
   function signOut() {
     clearSession();
     navigate({ to: "/login", replace: true });
@@ -133,7 +146,15 @@ function Home() {
           </header>
 
           <section className="mt-6 animate-rise">
-            <h1 className="font-display text-2xl font-bold">Hi, {firstName}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-2xl font-bold">Hi, {firstName}</h1>
+              {isPlus && (
+                <span className="flex items-center gap-1 rounded-full border border-sand/40 bg-sand/15 px-2 py-0.5 text-[10px] font-semibold text-sand">
+                  <Crown className="h-3 w-3" />
+                  Campus Plus
+                </span>
+              )}
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {student
                 ? `${student.branch} · Section ${student.section} · Year ${student.year}`
@@ -179,17 +200,19 @@ function Home() {
           </section>
 
 
-          <section className="mt-5 grid grid-cols-3 gap-2.5">
+          <section className="mt-5 grid grid-cols-4 gap-2">
             {actions.map(({ label, icon: Icon, to }) => (
               <button
                 key={label}
                 onClick={() => to && navigate({ to })}
-                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-2 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-lift)]"
+                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-1.5 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-lift)]"
               >
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-teal-deep/25 text-teal-light transition-colors group-hover:bg-teal-deep/35">
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className="text-[11px] font-medium text-foreground/85">{label}</span>
+                <span className="text-center text-[10px] font-medium leading-tight text-foreground/85">
+                  {label}
+                </span>
               </button>
             ))}
           </section>
