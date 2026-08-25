@@ -200,17 +200,19 @@ function Home() {
           </section>
 
 
-          <section className="mt-5 grid grid-cols-3 gap-2.5">
+          <section className="mt-5 grid grid-cols-4 gap-2">
             {actions.map(({ label, icon: Icon, to }) => (
               <button
                 key={label}
                 onClick={() => to && navigate({ to })}
-                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-2 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-lift)]"
+                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-1.5 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-lift)]"
               >
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-teal-deep/25 text-teal-light transition-colors group-hover:bg-teal-deep/35">
                   <Icon className="h-4 w-4" />
                 </span>
-                <span className="text-[11px] font-medium text-foreground/85">{label}</span>
+                <span className="text-center text-[10px] font-medium leading-tight text-foreground/85">
+                  {label}
+                </span>
               </button>
             ))}
           </section>
