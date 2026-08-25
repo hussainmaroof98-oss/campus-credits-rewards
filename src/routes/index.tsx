@@ -33,6 +33,7 @@ const actions = [
   { label: "Redeem", icon: Gift, to: "/redeem" as const },
   { label: "Events", icon: CalendarDays, to: "/events" as const },
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
+  { label: "Campus Plus", icon: Crown, to: "/campus-plus" as const },
 ];
 
 const sourceIcon = {
