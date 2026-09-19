@@ -50,8 +50,10 @@ const actions = [
   { label: "Redeem", icon: Gift, to: "/redeem" as const },
   { label: "Events", icon: CalendarDays, to: "/events" as const },
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
+  { label: "Achievements", icon: ScrollText, to: "/profile" as const },
   { label: "Campus Plus", icon: Crown, to: "/campus-plus" as const },
 ];
+
 
 const sourceIcon = {
   academic: GraduationCap,
@@ -185,13 +187,15 @@ function Home() {
               subtitle={
                 student ? `${student.branch.split(" ").pop()}-${student.section}` : "Campus"
               }
-              balance={stats?.credit_balance ?? student?.credit_balance ?? 0}
+              reputation={stats?.reputation ?? 0}
+              credits={stats?.credit_balance ?? student?.credit_balance ?? 0}
               delta={weekDelta}
               personalRank={
                 stats ? `#${stats.personal_rank} / ${stats.total_students}` : "—"
               }
               classRank={stats ? `#${stats.class_rank} / ${stats.class_size}` : "—"}
             />
+
           </section>
 
           <section className="mt-5 flex items-center gap-4 rounded-3xl border border-border bg-surface/80 p-4">
@@ -217,7 +221,7 @@ function Home() {
           </section>
 
 
-          <section className="mt-5 grid grid-cols-4 gap-2">
+          <section className="mt-5 grid grid-cols-3 gap-2">
             {actions.map(({ label, icon: Icon, to }) => (
               <button
                 key={label}
