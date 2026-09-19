@@ -1368,6 +1368,40 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
           </button>
         )}
       </div>
+
+      {/* FLAW H — only penalties YOU applied are returned by staff_my_penalties().
+          The filter lives in SQL, so another staff account cannot query them at
+          all. A proper role model (e.g. a discipline committee role) is the real
+          long-term fix; this is a deliberately narrow interim scope. */}
+      <div className="mt-7 border-t border-destructive/25 pt-5">
+        <h3 className={labelClass}>Penalties you applied</h3>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Visible only to your staff account.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {(myPenalties ?? []).map((p) => (
+            <li
+              key={p.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-2.5"
+            >
+              <span className="text-[12px]">
+                <span className="font-semibold">{p.student_name}</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  · {p.enrollment_number} · {p.citation}
+                </span>
+              </span>
+              <span className="font-mono text-[12px] font-bold text-destructive">{p.points}</span>
+            </li>
+          ))}
+          {(myPenalties ?? []).length === 0 && (
+            <li className="text-[12px] text-muted-foreground">
+              You haven&apos;t applied any penalties.
+            </li>
+          )}
+        </ul>
+      </div>
+
     </div>
   );
 }
