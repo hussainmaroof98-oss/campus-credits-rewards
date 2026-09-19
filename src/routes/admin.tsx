@@ -91,13 +91,13 @@ type StaffRegistration = {
 };
 
 const inputClass =
-  "w-full rounded-2xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/40";
+  "w-full rounded-2xl border border-border bg-secondary/50 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40";
 const labelClass =
   "text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground";
 const primaryBtn =
-  "btn-hero rounded-full px-5 py-2.5 font-display text-[13px] font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70";
+  "btn-hero rounded-full px-5 py-2.5 font-display text-[13px] font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70";
 const ghostBtn =
-  "rounded-full border border-border bg-surface/80 px-4 py-2 text-[12px] font-medium text-muted-foreground transition-colors hover:border-teal/45 hover:text-foreground";
+  "rounded-full border border-border bg-surface/80 px-4 py-2 text-[12px] font-medium text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground";
 
 function formatDate(date: string | null) {
   if (!date) return "Date to be announced";
@@ -120,8 +120,8 @@ function AdminPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
-      <div className="blob -left-40 -top-40 h-[28rem] w-[28rem] bg-teal/12" />
-      <div className="blob -right-32 bottom-0 h-[26rem] w-[26rem] bg-teal-light/10" />
+      <div className="blob -left-40 -top-40 h-[28rem] w-[28rem] bg-primary/10" />
+      <div className="blob -right-32 bottom-0 h-[26rem] w-[26rem] bg-accent/20" />
       {!ready ? null : staff ? (
         <AdminDashboard staff={staff} onSignOut={() => { clearStaffSession(); setStaff(null); }} />
       ) : (
@@ -173,7 +173,7 @@ function StaffLogin({ onAuthed }: { onAuthed: (s: StaffSession) => void }) {
     <div className="relative mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
       <div className="animate-rise rounded-3xl border border-border bg-surface/70 p-8 backdrop-blur-sm">
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-teal/40 bg-teal-deep/25 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-light">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-accent/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
             <ShieldCheck className="h-3 w-3" /> Staff panel
           </span>
           <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-foreground">
@@ -283,7 +283,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
     <div className="relative mx-auto w-full max-w-6xl px-6 py-10 lg:px-10">
       <header className="animate-rise flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-teal-light">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
             CampCredit · Staff panel
           </p>
           <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Event control room</h1>
@@ -307,14 +307,14 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
             className={cn(
               "flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-200",
               tab === key
-                ? "border-teal/55 bg-teal-deep/30 text-foreground"
-                : "border-border bg-surface/60 text-muted-foreground hover:border-teal/40 hover:text-foreground",
+                ? "border-primary/55 bg-accent/55 text-foreground"
+                : "border-border bg-surface/60 text-muted-foreground hover:border-primary/40 hover:text-foreground",
             )}
           >
             <Icon className="h-3.5 w-3.5" />
             {label}
             {typeof count === "number" && (
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold">
+              <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-[10px] font-semibold">
                 {count}
               </span>
             )}
@@ -330,7 +330,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
             {pending.map((event, i) => (
               <article
                 key={event.id}
-                className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]"
+                className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]"
                 style={{ animationDelay: `${i * 45}ms` }}
               >
                 <EventHead event={event} />
@@ -372,8 +372,8 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
                   className={cn(
                     "animate-rise w-full rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]",
                     selectedEvent?.id === event.id
-                      ? "border-teal/55 bg-teal-deep/20"
-                      : "border-border bg-surface/70 hover:border-teal/45",
+                      ? "border-primary/55 bg-accent/40"
+                      : "border-border bg-surface/70 hover:border-primary/45",
                   )}
                 >
                   <EventHead event={event} compact />
@@ -414,7 +414,7 @@ function EventHead({ event, compact = false }: { event: EventRow; compact?: bool
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-display text-sm font-bold leading-tight">{event.title}</h3>
         {event.team_required && (
-          <span className="shrink-0 rounded-full bg-teal/25 px-2 py-0.5 text-[10px] font-medium text-teal-light">
+          <span className="shrink-0 rounded-full bg-primary/25 px-2 py-0.5 text-[10px] font-medium text-primary">
             Team event
           </span>
         )}
@@ -487,7 +487,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
           <h2 className="font-display text-lg font-bold leading-tight">{event.title}</h2>
           <p className="mt-1 text-xs text-muted-foreground">{formatDate(event.date)}</p>
         </div>
-        <span className="flex items-center gap-1.5 rounded-full border border-border bg-white/5 px-3 py-1 text-[11px] text-muted-foreground">
+        <span className="flex items-center gap-1.5 rounded-full border border-border bg-secondary/50 px-3 py-1 text-[11px] text-muted-foreground">
           <Users className="h-3 w-3" />
           {rows?.length ?? 0} registered
         </span>
@@ -513,11 +513,11 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
           return (
             <li
               key={r.registration_id}
-              className="rounded-2xl border border-border bg-white/5 p-4 backdrop-blur-sm"
+              className="rounded-2xl border border-border bg-secondary/50 p-4 backdrop-blur-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-9 w-9 place-items-center rounded-full border border-border bg-teal-deep/25 font-display text-[12px] font-bold text-cream/90">
+                  <span className="grid h-9 w-9 place-items-center rounded-full border border-border bg-accent/50 font-display text-[12px] font-bold text-foreground/90">
                     {r.student_name.charAt(0)}
                   </span>
                   <div>
@@ -528,7 +528,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                     </p>
                   </div>
                 </div>
-                <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] text-muted-foreground">
+                <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] text-muted-foreground">
                   {r.credit_balance.toLocaleString("en-IN")} credits
                 </span>
               </div>
@@ -579,7 +579,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                   Award
                 </button>
                 {awarded[r.student_id] && (
-                  <span className="flex items-center gap-1 text-[11px] font-medium text-teal-light">
+                  <span className="flex items-center gap-1 text-[11px] font-medium text-primary">
                     <Check className="h-3 w-3" /> Awarded
                   </span>
                 )}
@@ -692,7 +692,7 @@ function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated:
           className={cn(
             "flex items-center gap-2 rounded-full border px-4 py-2.5 text-[12px] font-medium transition-colors",
             teamRequired
-              ? "border-teal/55 bg-teal-deep/30 text-foreground"
+              ? "border-primary/55 bg-accent/55 text-foreground"
               : "border-border bg-surface/70 text-muted-foreground hover:text-foreground",
           )}
         >
@@ -701,12 +701,12 @@ function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated:
           <span
             className={cn(
               "ml-1 h-4 w-7 rounded-full p-0.5 transition-colors",
-              teamRequired ? "bg-teal" : "bg-white/15",
+              teamRequired ? "bg-primary" : "bg-foreground/15",
             )}
           >
             <span
               className={cn(
-                "block h-3 w-3 rounded-full bg-cream transition-transform",
+                "block h-3 w-3 rounded-full bg-foreground transition-transform",
                 teamRequired && "translate-x-3",
               )}
             />
@@ -723,7 +723,7 @@ function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated:
         </p>
       )}
       {done && (
-        <p className="rounded-xl border border-teal/40 bg-teal-deep/20 px-3 py-2 text-xs font-medium text-teal-light">
+        <p className="rounded-xl border border-primary/40 bg-accent/40 px-3 py-2 text-xs font-medium text-primary">
           Event submitted for approval.
         </p>
       )}
@@ -790,7 +790,7 @@ function RedemptionsPanel({ staff }: { staff: StaffSession }) {
           {pending.map((r, i) => (
             <article
               key={r.id}
-              className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]"
+              className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]"
               style={{ animationDelay: `${i * 45}ms` }}
             >
               <h3 className="font-display text-base font-bold leading-tight">{r.reward_name}</h3>
@@ -888,7 +888,7 @@ function CheckpointPanel({ staff }: { staff: StaffSession }) {
         {run.isPending ? "Running…" : "Run Checkpoint Bonuses"}
       </button>
       {result && (
-        <p className="mt-3 rounded-xl border border-teal/40 bg-teal-deep/20 px-3 py-2 text-xs font-medium text-teal-light">
+        <p className="mt-3 rounded-xl border border-primary/40 bg-accent/40 px-3 py-2 text-xs font-medium text-primary">
           {result}
         </p>
       )}
@@ -954,7 +954,7 @@ function TeamBonusPanel({
   });
 
   return (
-    <div className="mt-6 rounded-2xl border border-teal/40 bg-teal-deep/15 p-4">
+    <div className="mt-6 rounded-2xl border border-primary/40 bg-accent/30 p-4">
       <h3 className="font-display text-sm font-bold">Team bonus (reputation)</h3>
       <p className="mt-1 text-[11px] text-muted-foreground">
         Adds standing to everyone on the team. Spendable credits are unaffected.
@@ -974,8 +974,8 @@ function TeamBonusPanel({
               className={cn(
                 "rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors",
                 on
-                  ? "border-teal/60 bg-teal-deep/40 text-foreground"
-                  : "border-border bg-white/5 text-muted-foreground hover:text-foreground",
+                  ? "border-primary/60 bg-accent/65 text-foreground"
+                  : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground",
               )}
             >
               {r.student_name}
@@ -1044,7 +1044,7 @@ function TeamBonusPanel({
       </div>
 
       {done && (
-        <p className="mt-3 text-[12px] font-medium text-teal-light">{done}</p>
+        <p className="mt-3 text-[12px] font-medium text-primary">{done}</p>
       )}
       {error && (
         <p role="alert" className="mt-3 text-[12px] font-medium text-destructive">
@@ -1200,7 +1200,7 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
             {error}
           </p>
         )}
-        {done && <p className="text-[12px] font-medium text-teal-light">{done}</p>}
+        {done && <p className="text-[12px] font-medium text-primary">{done}</p>}
 
         {confirming ? (
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3">

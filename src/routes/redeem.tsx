@@ -158,10 +158,10 @@ function RedeemPage() {
   });
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
-        <div className="blob -right-28 top-72 h-72 w-72 bg-sand/8" />
+    <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
+      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[var(--shadow-frame)]">
+        <div className="blob -left-24 -top-20 h-64 w-64 bg-primary/10" />
+        <div className="blob -right-28 top-72 h-72 w-72 bg-accent/20" />
 
         <div className="relative flex-1 px-5 pb-16 pt-6">
           <header className="flex items-center gap-3">
@@ -182,7 +182,7 @@ function RedeemPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Available balance
             </p>
-            <p className="mt-1 font-mono text-3xl font-bold tracking-tight text-cream">
+            <p className="mt-1 font-mono text-3xl font-bold tracking-tight text-foreground">
               {balance.toLocaleString("en-IN")}
               <span className="ml-2 font-display text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 credits
@@ -215,7 +215,7 @@ function RedeemPage() {
                     className={cn(
                       "animate-rise flex flex-col rounded-2xl border bg-surface/70 p-3.5 transition-all duration-200",
                       affordable
-                        ? "border-border hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]"
+                        ? "border-border hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]"
                         : "border-border/60 opacity-70",
                     )}
                     style={{ animationDelay: `${i * 40}ms` }}
@@ -224,8 +224,8 @@ function RedeemPage() {
                       className={cn(
                         "grid h-9 w-9 place-items-center rounded-full",
                         affordable
-                          ? "bg-teal-deep/25 text-teal-light"
-                          : "bg-white/5 text-muted-foreground",
+                          ? "bg-accent/50 text-primary"
+                          : "bg-secondary/50 text-muted-foreground",
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -236,7 +236,7 @@ function RedeemPage() {
                     <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
                       {reward.description}
                     </p>
-                    <p className="mt-2 font-mono text-sm font-bold text-cream">
+                    <p className="mt-2 font-mono text-sm font-bold text-foreground">
                       {reward.points_cost.toLocaleString("en-IN")}
                       <span className="ml-1 font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         pts
@@ -247,7 +247,7 @@ function RedeemPage() {
                         <button
                           disabled={redeem.isPending}
                           onClick={() => redeem.mutate(reward)}
-                          className="btn-hero w-full rounded-full py-2 font-display text-[12px] font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
+                          className="btn-hero w-full rounded-full py-2 font-display text-[12px] font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
                         >
                           {pendingThis ? "Redeeming…" : "Redeem"}
                         </button>
@@ -255,7 +255,7 @@ function RedeemPage() {
                         <>
                           <button
                             disabled
-                            className="w-full cursor-not-allowed rounded-full border border-border bg-white/5 py-2 font-display text-[12px] font-bold text-muted-foreground"
+                            className="w-full cursor-not-allowed rounded-full border border-border bg-secondary/50 py-2 font-display text-[12px] font-bold text-muted-foreground"
                           >
                             Redeem
                           </button>
@@ -294,7 +294,7 @@ function RedeemPage() {
                     "shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium capitalize",
                     r.status === "fulfilled"
                       ? "bg-success/20 text-success"
-                      : "bg-sand/20 text-sand",
+                      : "bg-accent/60 text-primary",
                   )}
                 >
                   {r.status}

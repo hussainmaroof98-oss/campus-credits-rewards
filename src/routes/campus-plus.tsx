@@ -103,10 +103,10 @@ function CampusPlusPage() {
   });
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-20 h-64 w-64 bg-sand/10" />
-        <div className="blob -right-28 top-72 h-72 w-72 bg-teal/12" />
+    <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
+      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[var(--shadow-frame)]">
+        <div className="blob -left-24 -top-20 h-64 w-64 bg-primary/10" />
+        <div className="blob -right-28 top-72 h-72 w-72 bg-primary/10" />
 
         <div className="relative flex-1 px-5 pb-16 pt-6">
           <header className="flex items-center gap-3">
@@ -120,7 +120,7 @@ function CampusPlusPage() {
             <div>
               <h1 className="flex items-center gap-1.5 font-display text-xl font-bold tracking-tight">
                 Campus Plus
-                <Crown className="h-4 w-4 text-sand" />
+                <Crown className="h-4 w-4 text-primary" />
               </h1>
               <p className="text-xs text-muted-foreground">Earn faster, skip the queue</p>
             </div>
@@ -130,7 +130,7 @@ function CampusPlusPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Membership
             </p>
-            <p className="mt-1 font-mono text-3xl font-bold tracking-tight text-cream">
+            <p className="mt-1 font-mono text-3xl font-bold tracking-tight text-foreground">
               ₹49
               <span className="ml-2 font-display text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 / month
@@ -155,7 +155,7 @@ function CampusPlusPage() {
                     <span
                       className={cn(
                         "mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full",
-                        p.ok ? "bg-teal-deep/25 text-teal-light" : "bg-white/5 text-muted-foreground",
+                        p.ok ? "bg-accent/50 text-primary" : "bg-secondary/50 text-muted-foreground",
                       )}
                     >
                       {p.ok ? <Check className="h-2.5 w-2.5" /> : <X className="h-2.5 w-2.5" />}
@@ -169,18 +169,18 @@ function CampusPlusPage() {
             </article>
 
             <article
-              className="animate-rise rounded-2xl border border-sand/40 bg-surface/80 p-4 shadow-[var(--shadow-lift)]"
+              className="animate-rise rounded-2xl border border-primary/40 bg-surface/80 p-4 shadow-[var(--shadow-lift)]"
               style={{ animationDelay: "60ms" }}
             >
-              <h3 className="flex items-center gap-1.5 font-display text-[13px] font-bold text-cream">
+              <h3 className="flex items-center gap-1.5 font-display text-[13px] font-bold text-foreground">
                 Campus Plus
-                <Sparkles className="h-3.5 w-3.5 text-sand" />
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
               </h3>
               <p className="mt-0.5 text-[11px] text-muted-foreground">Everything in Free, plus</p>
               <ul className="mt-3 space-y-2">
                 {plusPerks.map((p) => (
                   <li key={p.label} className="flex items-start gap-2 text-[12px] leading-snug">
-                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-sand/25 text-sand">
+                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary/25 text-primary">
                       <Check className="h-2.5 w-2.5" />
                     </span>
                     <span className="text-foreground/90">{p.label}</span>
@@ -203,7 +203,7 @@ function CampusPlusPage() {
                     RevenueCat / store-managed subscription screen natively. */}
                 <button
                   onClick={() => setToast("Subscription management arrives with the native app.")}
-                  className="mt-3 font-display text-[12px] font-semibold text-teal-light underline underline-offset-4 transition-opacity hover:opacity-80"
+                  className="mt-3 font-display text-[12px] font-semibold text-primary underline underline-offset-4 transition-opacity hover:opacity-80"
                 >
                   Manage subscription
                 </button>
@@ -213,7 +213,7 @@ function CampusPlusPage() {
                 <button
                   disabled={subscribe.isPending || !student}
                   onClick={() => subscribe.mutate()}
-                  className="btn-hero w-full rounded-full py-3 font-display text-[13px] font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
+                  className="btn-hero w-full rounded-full py-3 font-display text-[13px] font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
                 >
                   {subscribe.isPending ? "Activating…" : "Subscribe · ₹49/month"}
                 </button>
