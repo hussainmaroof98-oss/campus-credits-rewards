@@ -16,7 +16,9 @@ import {
   GraduationCap,
   ShieldAlert,
   Shield,
+  TicketCheck,
   Trophy,
+
   Users,
 } from "lucide-react";
 
@@ -171,6 +173,20 @@ function ProfilePage() {
               <p className="mt-1 text-[11px] text-muted-foreground">Spendable on rewards</p>
             </div>
           </section>
+
+          <button
+            onClick={() => navigate({ to: "/vouchers" })}
+            className="mt-3 flex w-full items-center justify-between rounded-2xl border border-border bg-surface/70 px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45"
+          >
+            <span>
+              <span className="block font-display text-[13px] font-bold">My vouchers</span>
+              <span className="block text-[11px] text-muted-foreground">
+                Codes for everything you&apos;ve redeemed
+              </span>
+            </span>
+            <TicketCheck className="h-4 w-4 text-primary" />
+          </button>
+
 
           {/* Leaderboard visibility */}
           <section className="mt-5 rounded-3xl border border-border bg-surface/70 p-4">
