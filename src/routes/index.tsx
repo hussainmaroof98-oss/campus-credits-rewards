@@ -17,6 +17,8 @@ import {
   LogOut,
   Crown,
   ScrollText,
+  TicketCheck,
+
 } from "lucide-react";
 
 import avatar from "@/assets/avatar-aarav.jpg";
@@ -50,11 +52,13 @@ export const Route = createFileRoute("/")({
 
 const actions = [
   { label: "Redeem", icon: Gift, to: "/redeem" as const },
+  { label: "My Vouchers", icon: TicketCheck, to: "/vouchers" as const },
   { label: "Events", icon: CalendarDays, to: "/events" as const },
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
   { label: "Achievements", icon: ScrollText, to: "/profile" as const },
   { label: "Campus Plus", icon: Crown, to: "/campus-plus" as const },
 ];
+
 
 
 const sourceIcon = {

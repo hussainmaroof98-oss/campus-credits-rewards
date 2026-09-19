@@ -55,17 +55,32 @@ export const Route = createFileRoute("/admin")({
   }),
 });
 
-type Tab = "pending" | "live" | "create" | "redemptions" | "penalty";
+type Tab = "pending" | "live" | "create" | "vouchers" | "penalty";
 
-type StaffRedemption = {
+type StaffVoucher = {
   id: string;
   student_name: string;
   enrollment_number: string;
   reward_name: string;
   points_cost: number;
   status: string;
+  voucher_code: string | null;
   created_at: string;
 };
+
+// ---------------------------------------------------------------------------
+// EVENT POINT PRESETS — guide rails so awards stay consistent across staff.
+// staff_award_points() hard-caps a single award at 400 points, matching the
+// top tier below. Staff can still type any custom number within that cap.
+// ---------------------------------------------------------------------------
+const AWARD_PRESETS: { label: string; hint: string; points: number }[] = [
+  { label: "Participation", hint: "20–40", points: 30 },
+  { label: "College-level win", hint: "150–250", points: 200 },
+  { label: "State/National win", hint: "300–400", points: 350 },
+  { label: "Volunteering", hint: "30–50", points: 40 },
+  { label: "Helping organize", hint: "50–80", points: 65 },
+];
+
 
 type EventRow = {
   id: string;
@@ -274,7 +289,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
     { key: "pending", label: "Pending Approval", icon: ClipboardList, count: pending.length },
     { key: "live", label: "Live Events", icon: Sparkles, count: live.length },
     { key: "create", label: "Create Event", icon: Plus },
-    { key: "redemptions", label: "Redemptions", icon: Gift },
+    { key: "vouchers", label: "Vouchers", icon: Gift },
     { key: "penalty", label: "Penalty", icon: ShieldAlert },
   ];
 
@@ -360,7 +375,11 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
 
         {tab === "live" && (
           <div className="space-y-6">
-            <CheckpointPanel staff={staff} />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <CheckpointPanel staff={staff} />
+              <ClassRewardsPanel staff={staff} />
+            </div>
+
             <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr]">
 
             <div className="space-y-3">
@@ -399,7 +418,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
 
         {tab === "create" && <CreateEventForm staff={staff} onCreated={() => setTab("pending")} />}
 
-        {tab === "redemptions" && <RedemptionsPanel staff={staff} />}
+        {tab === "vouchers" && <VouchersPanel staff={staff} />}
 
         {tab === "penalty" && <PenaltyPanel staff={staff} />}
 
@@ -533,7 +552,36 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                 </span>
               </div>
 
+              {/* Quick-select presets guide the default; custom numbers still allowed. */}
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {AWARD_PRESETS.map((p) => (
+                  <button
+                    key={p.label}
+                    onClick={() =>
+                      setDrafts((prev) => ({
+                        ...prev,
+                        [r.student_id]: {
+                          ...draft,
+                          points: String(p.points),
+                          note: draft.note || `${event.title} — ${p.label.toLowerCase()}`,
+                        },
+                      }))
+                    }
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-[11px] font-medium transition-colors",
+                      draft.points === String(p.points)
+                        ? "border-primary/60 bg-accent/60 text-foreground"
+                        : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {p.label}
+                    <span className="ml-1.5 text-[10px] opacity-70">{p.hint}</span>
+                  </button>
+                ))}
+              </div>
+
               <div className="mt-3 flex flex-wrap items-center gap-2">
+
                 <input
                   aria-label={`Points for ${r.student_name}`}
                   inputMode="numeric"
@@ -568,6 +616,11 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                       setError("Enter a non-zero number of points");
                       return;
                     }
+                    if (Math.abs(points) > 400) {
+                      setError("Event awards are capped at 400 points");
+                      return;
+                    }
+
                     award.mutate({
                       studentId: r.student_id,
                       points: Math.trunc(points),
@@ -738,24 +791,30 @@ function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated:
   );
 }
 
-function RedemptionsPanel({ staff }: { staff: StaffSession }) {
+/* -------------------------------------------------------------------------- */
+/* Voucher desk — redemptions are instant now, so staff only mark codes used.  */
+/* -------------------------------------------------------------------------- */
+
+function VouchersPanel({ staff }: { staff: StaffSession }) {
   const queryClient = useQueryClient();
+  const [query, setQuery] = useState("");
   const [error, setError] = useState("");
 
   const { data: rows, isLoading } = useQuery({
-    queryKey: ["staff-redemptions", staff.id],
+    queryKey: ["staff-vouchers", staff.id, query],
     queryFn: async () => {
-      const { data, error: rpcError } = await supabase.rpc("staff_pending_redemptions", {
+      const { data, error: rpcError } = await supabase.rpc("staff_vouchers", {
         p_staff_id: staff.id,
+        p_query: query.trim(),
       });
       if (rpcError) throw rpcError;
-      return (data ?? []) as StaffRedemption[];
+      return (data ?? []) as StaffVoucher[];
     },
   });
 
-  const fulfill = useMutation({
+  const markUsed = useMutation({
     mutationFn: async (redemptionId: string) => {
-      const { error: rpcError } = await supabase.rpc("staff_fulfill_redemption", {
+      const { error: rpcError } = await supabase.rpc("staff_mark_voucher_used", {
         p_staff_id: staff.id,
         p_redemption_id: redemptionId,
       });
@@ -763,18 +822,26 @@ function RedemptionsPanel({ staff }: { staff: StaffSession }) {
     },
     onSuccess: () => {
       setError("");
-      queryClient.invalidateQueries({ queryKey: ["staff-redemptions", staff.id] });
+      queryClient.invalidateQueries({ queryKey: ["staff-vouchers", staff.id] });
     },
-    onError: () => setError("Could not update that redemption. Please try again."),
+    onError: () => setError("Could not update that voucher. Please try again."),
   });
 
-  const pending = (rows ?? []).filter((r) => r.status === "pending");
-  const done = (rows ?? []).filter((r) => r.status !== "pending");
-
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading redemptions…</p>;
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      <div className="max-w-xl">
+        <label htmlFor="voucher-search" className={labelClass}>
+          Find a voucher
+        </label>
+        <input
+          id="voucher-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Voucher code (CC-XXXX-XXXX) or student name"
+          className={cn(inputClass, "mt-1.5")}
+        />
+      </div>
+
       {error && (
         <p
           role="alert"
@@ -784,66 +851,62 @@ function RedemptionsPanel({ staff }: { staff: StaffSession }) {
         </p>
       )}
 
-      <div>
-        <h2 className={labelClass}>Pending redemptions ({pending.length})</h2>
-        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {pending.map((r, i) => (
+      {isLoading && <p className="text-sm text-muted-foreground">Loading vouchers…</p>}
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {(rows ?? []).map((r, i) => {
+          const used = r.status === "used";
+          return (
             <article
               key={r.id}
-              className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]"
-              style={{ animationDelay: `${i * 45}ms` }}
+              style={{ animationDelay: `${i * 40}ms` }}
+              className={cn(
+                "animate-rise flex flex-col rounded-2xl border p-5",
+                used ? "border-border/60 bg-surface/50" : "border-border bg-surface/70",
+              )}
             >
-              <h3 className="font-display text-base font-bold leading-tight">{r.reward_name}</h3>
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-display text-base font-bold leading-tight">{r.reward_name}</h3>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium capitalize",
+                    used ? "bg-success/20 text-success" : "bg-accent/60 text-primary",
+                  )}
+                >
+                  {r.status}
+                </span>
+              </div>
               <p className="mt-1 text-[13px] text-muted-foreground">
                 {r.student_name} · {r.enrollment_number}
               </p>
               <p className="mt-1 text-[12px] text-muted-foreground">
                 {formatDate(r.created_at.slice(0, 10))} · {r.points_cost.toLocaleString("en-IN")} pts
               </p>
-              <div className="mt-4 pt-1">
-                <button
-                  disabled={fulfill.isPending}
-                  onClick={() => fulfill.mutate(r.id)}
-                  className={cn(primaryBtn, "flex items-center gap-1.5 px-4 py-2 text-[12px]")}
-                >
-                  <Check className="h-3.5 w-3.5" /> Mark Fulfilled
-                </button>
-              </div>
+              <p className="mt-3 rounded-xl border border-dashed border-border bg-secondary/40 px-3 py-2 font-mono text-[14px] font-bold tracking-[0.12em]">
+                {r.voucher_code ?? "—"}
+              </p>
+              {!used && (
+                <div className="mt-4 pt-1">
+                  <button
+                    disabled={markUsed.isPending}
+                    onClick={() => markUsed.mutate(r.id)}
+                    className={cn(primaryBtn, "flex items-center gap-1.5 px-4 py-2 text-[12px]")}
+                  >
+                    <Check className="h-3.5 w-3.5" /> Mark Used
+                  </button>
+                </div>
+              )}
             </article>
-          ))}
-          {pending.length === 0 && (
-            <p className="text-sm text-muted-foreground">No pending redemptions right now.</p>
-          )}
-        </div>
+          );
+        })}
+        {!isLoading && (rows ?? []).length === 0 && (
+          <p className="text-sm text-muted-foreground">No vouchers match that search.</p>
+        )}
       </div>
-
-      {done.length > 0 && (
-        <div>
-          <h2 className={labelClass}>Fulfilled ({done.length})</h2>
-          <div className="mt-3 space-y-2">
-            {done.map((r) => (
-              <div
-                key={r.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface/50 px-5 py-3"
-              >
-                <span className="text-[13px]">
-                  <span className="font-display font-bold">{r.reward_name}</span>
-                  <span className="text-muted-foreground">
-                    {" "}
-                    · {r.student_name} · {formatDate(r.created_at.slice(0, 10))}
-                  </span>
-                </span>
-                <span className="rounded-full bg-success/20 px-2.5 py-0.5 text-[10px] font-medium capitalize text-success">
-                  {r.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Checkpoint bonuses (credits paid out for reputation standing)               */
@@ -903,6 +966,67 @@ function CheckpointPanel({ staff }: { staff: StaffSession }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Class rewards — top classes earn a store discount for all their members     */
+/* -------------------------------------------------------------------------- */
+
+function ClassRewardsPanel({ staff }: { staff: StaffSession }) {
+  const [result, setResult] = useState("");
+  const [error, setError] = useState("");
+
+  // Ranks classes by their reputation-based normalized score and grants:
+  // 1st 20% / 30 days · 2nd 15% / 30 days · 3rd 10% / 30 days · 4th-5th 5% / 14 days.
+  const run = useMutation({
+    mutationFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("apply_class_rewards", {
+        p_staff_id: staff.id,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? []) as { class_label: string; discount_percent: number }[];
+    },
+    onSuccess: (rows) => {
+      setError("");
+      setResult(
+        rows.length
+          ? rows.map((r) => `${r.class_label} · ${r.discount_percent}%`).join("  ·  ")
+          : "No classes to reward yet.",
+      );
+    },
+    onError: () => setError("Could not apply class rewards. Please try again."),
+  });
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface/70 p-5">
+      <h2 className="font-display text-base font-bold">Class rewards</h2>
+      <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
+        Gives the top 5 classes a store discount every member can use: 20%, 15% and 10% for 30
+        days, then 5% for 14 days. Previous grants are cleared first.
+      </p>
+      <button
+        disabled={run.isPending}
+        onClick={() => run.mutate()}
+        className={cn(primaryBtn, "mt-4")}
+      >
+        {run.isPending ? "Applying…" : "Apply Class Rewards"}
+      </button>
+      {result && (
+        <p className="mt-3 rounded-xl border border-primary/40 bg-accent/40 px-3 py-2 text-xs font-medium text-primary">
+          {result}
+        </p>
+      )}
+      {error && (
+        <p
+          role="alert"
+          className="mt-3 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 
 /* -------------------------------------------------------------------------- */
 /* Team bonus (reputation only)                                                */
@@ -1092,6 +1216,27 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
     },
   });
 
+  // Author-scoped: the database only returns penalties this staff member applied.
+  const { data: myPenalties, refetch: refetchPenalties } = useQuery({
+    queryKey: ["staff-my-penalties", staff.id],
+    queryFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("staff_my_penalties", {
+        p_staff_id: staff.id,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? []) as {
+        id: string;
+        student_name: string;
+        enrollment_number: string;
+        points: number;
+        citation: string;
+        created_at: string;
+      }[];
+    },
+  });
+
+
+
   const penalise = useMutation({
     mutationFn: async () => {
       const { error: rpcError } = await supabase.rpc("apply_penalty", {
@@ -1110,6 +1255,8 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
       setReason("");
       setPicked(null);
       setQuery("");
+      refetchPenalties();
+
     },
     onError: () => {
       setConfirming(false);
@@ -1244,6 +1391,40 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
           </button>
         )}
       </div>
+
+      {/* FLAW H — only penalties YOU applied are returned by staff_my_penalties().
+          The filter lives in SQL, so another staff account cannot query them at
+          all. A proper role model (e.g. a discipline committee role) is the real
+          long-term fix; this is a deliberately narrow interim scope. */}
+      <div className="mt-7 border-t border-destructive/25 pt-5">
+        <h3 className={labelClass}>Penalties you applied</h3>
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Visible only to your staff account.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {(myPenalties ?? []).map((p) => (
+            <li
+              key={p.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-2.5"
+            >
+              <span className="text-[12px]">
+                <span className="font-semibold">{p.student_name}</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  · {p.enrollment_number} · {p.citation}
+                </span>
+              </span>
+              <span className="font-mono text-[12px] font-bold text-destructive">{p.points}</span>
+            </li>
+          ))}
+          {(myPenalties ?? []).length === 0 && (
+            <li className="text-[12px] text-muted-foreground">
+              You haven&apos;t applied any penalties.
+            </li>
+          )}
+        </ul>
+      </div>
+
     </div>
   );
 }
