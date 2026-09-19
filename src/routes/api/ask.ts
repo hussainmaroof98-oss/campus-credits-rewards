@@ -44,7 +44,7 @@ async function handleAsk(request: Request) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: student } = await supabaseAdmin
     .from("students")
-    .select("id,name,enrollment_number,branch,section,year,credit_balance,reputation,personal_rank,is_campus_plus")
+    .select("id,name,enrollment_number,branch,section,year,is_campus_plus")
     .eq("id", input.studentId)
     .maybeSingle();
 
