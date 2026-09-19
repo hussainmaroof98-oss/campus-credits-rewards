@@ -964,6 +964,67 @@ function CheckpointPanel({ staff }: { staff: StaffSession }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Class rewards — top classes earn a store discount for all their members     */
+/* -------------------------------------------------------------------------- */
+
+function ClassRewardsPanel({ staff }: { staff: StaffSession }) {
+  const [result, setResult] = useState("");
+  const [error, setError] = useState("");
+
+  // Ranks classes by their reputation-based normalized score and grants:
+  // 1st 20% / 30 days · 2nd 15% / 30 days · 3rd 10% / 30 days · 4th-5th 5% / 14 days.
+  const run = useMutation({
+    mutationFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("apply_class_rewards", {
+        p_staff_id: staff.id,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? []) as { class_label: string; discount_percent: number }[];
+    },
+    onSuccess: (rows) => {
+      setError("");
+      setResult(
+        rows.length
+          ? rows.map((r) => `${r.class_label} · ${r.discount_percent}%`).join("  ·  ")
+          : "No classes to reward yet.",
+      );
+    },
+    onError: () => setError("Could not apply class rewards. Please try again."),
+  });
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface/70 p-5">
+      <h2 className="font-display text-base font-bold">Class rewards</h2>
+      <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
+        Gives the top 5 classes a store discount every member can use: 20%, 15% and 10% for 30
+        days, then 5% for 14 days. Previous grants are cleared first.
+      </p>
+      <button
+        disabled={run.isPending}
+        onClick={() => run.mutate()}
+        className={cn(primaryBtn, "mt-4")}
+      >
+        {run.isPending ? "Applying…" : "Apply Class Rewards"}
+      </button>
+      {result && (
+        <p className="mt-3 rounded-xl border border-primary/40 bg-accent/40 px-3 py-2 text-xs font-medium text-primary">
+          {result}
+        </p>
+      )}
+      {error && (
+        <p
+          role="alert"
+          className="mt-3 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+
+/* -------------------------------------------------------------------------- */
 /* Team bonus (reputation only)                                                */
 /* -------------------------------------------------------------------------- */
 
