@@ -83,7 +83,7 @@ export function CampusIdCard({
           Reputation
         </p>
         <div className="mt-1 flex items-end gap-3">
-          <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-foreground drop-shadow-[0_1px_4px_rgba(30,40,55,0.22)]">
+          <span className="number-depth font-mono text-[44px] font-bold leading-none tabular-nums text-foreground">
             {reputation.toLocaleString("en-IN")}
           </span>
           <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-foreground/20 px-2 py-1 text-[11px] font-semibold text-foreground">

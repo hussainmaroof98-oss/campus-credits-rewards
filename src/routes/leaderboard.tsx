@@ -73,9 +73,9 @@ function initials(name: string) {
 }
 
 function medalFor(rank: number) {
-  if (rank === 1) return { Icon: Crown, cls: "text-primary" };
-  if (rank === 2) return { Icon: Medal, cls: "text-foreground/80" };
-  if (rank === 3) return { Icon: Medal, cls: "text-primary" };
+  if (rank === 1) return { Icon: Crown, cls: "text-metal-gold" };
+  if (rank === 2) return { Icon: Medal, cls: "text-metal-silver" };
+  if (rank === 3) return { Icon: Medal, cls: "text-metal-bronze" };
   return null;
 }
 

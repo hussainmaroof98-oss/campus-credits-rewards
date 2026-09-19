@@ -42,6 +42,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Earn credits, climb your class leaderboard, redeem real rewards.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });

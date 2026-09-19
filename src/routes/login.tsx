@@ -20,6 +20,8 @@ export const Route = createFileRoute("/login")({
         property: "og:description",
         content: "Sign in with your enrollment number to see your campus credits.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
