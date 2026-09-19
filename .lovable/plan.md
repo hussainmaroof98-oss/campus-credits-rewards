@@ -1,20 +1,25 @@
-# Add personalized campus assistant and responsive polish
+# Add personalized campus assistant, responsive polish, and functional Campus Plus
 
 ## Scope
 - Add a student-facing “Ask CampCredit” assistant for free-text questions about credits, reputation/rankings, rewards, vouchers, and events.
 - Personalize answers with the signed-in student’s current CampCredit data while keeping the model key and instructions server-side.
 - Improve readability and layout behavior at a 390px phone viewport and on larger screens, preserving the navy visual system and existing workflows.
+- Turn the Campus Plus promise into four working benefits: doubled earned credits, a stackable store discount, a portfolio, and selectable ID-card skins.
 
 ## Implementation
 - Create a streaming AI chat endpoint using Lovable AI Gateway with `openai/gpt-6-astra`, reasoning enabled, and the existing app’s client-only student session passed as validated context.
 - Fetch current student statistics, recent credit and achievement entries, available rewards/class stock, vouchers, upcoming events, and leaderboard/class context on the server; give the model only the data needed to answer the student’s question.
 - Add a dedicated `/ask` screen with suggested questions, streamed responses, visible thinking summaries, clear loading/error/empty states, conversation history for the current device, and links from Home/profile.
 - Add reusable responsive screen/frame styling and refine the Digital Campus ID card, navigation controls, reward grid, leaderboard rows, event cards, voucher codes, profile stats, authentication forms, and Admin navigation so content wraps or scrolls cleanly without clipping.
+- Add `card_skin` to student profiles, a Plus-only skin picker, and two alternate token-backed card gradients; Home always falls back to navy for Free members.
+- Double only credits from academic sync and staff event awards for Plus members, leaving every reputation award unchanged; stack a 5% personal store discount additively with the current class discount.
+- Add a polished Plus-only `/portfolio` grouped by public achievement source, with an upgrade state for Free members, and update the comparison screen to advertise only these four implemented benefits.
 - Keep the app’s existing client-only SPA rendering configuration for Capacitor; the AI endpoint is a remote service boundary and does not change screen rendering to SSR.
 
 ## Validation
 - Test one real personalized AI request through the new endpoint and verify safe gateway error messages.
 - Check Home, Ask, Leaderboard, Events, Redeem, Vouchers, Profile, Campus Plus, Login/Sign Up, and Admin at 390px and desktop widths.
+- Verify Free/Plus pricing, credit multipliers, portfolio access, and stored card-skin behavior.
 - Confirm there is no horizontal overflow, controls remain usable, route metadata is complete, and the preview build succeeds.
 
 ## Technical details
