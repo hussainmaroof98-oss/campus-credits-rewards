@@ -586,6 +586,19 @@ export type Database = {
           student_name: string
         }[]
       }
+      staff_search_students: {
+        Args: { p_query: string; p_staff_id: string }
+        Returns: {
+          branch: string
+          credit_balance: number
+          enrollment_number: string
+          id: string
+          name: string
+          reputation: number
+          section: string
+          year: number
+        }[]
+      }
       student_campus_plus_status: {
         Args: { p_student_id: string }
         Returns: {
