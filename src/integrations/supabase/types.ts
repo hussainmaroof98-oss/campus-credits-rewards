@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           citation: string
           created_at: string
+          created_by_staff_id: string | null
           id: string
           is_private: boolean
           points: number
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           citation: string
           created_at?: string
+          created_by_staff_id?: string | null
           id?: string
           is_private?: boolean
           points: number
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           citation?: string
           created_at?: string
+          created_by_staff_id?: string | null
           id?: string
           is_private?: boolean
           points?: number
@@ -43,6 +46,13 @@ export type Database = {
           student_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "achievements_created_by_staff_id_fkey"
+            columns: ["created_by_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "achievements_student_id_fkey"
             columns: ["student_id"]
@@ -54,8 +64,10 @@ export type Database = {
       }
       classes: {
         Row: {
+          active_discount_percent: number
           branch: string
           created_at: string
+          discount_expires_at: string | null
           id: string
           normalized_score: number
           section: string
@@ -63,8 +75,10 @@ export type Database = {
           year: number
         }
         Insert: {
+          active_discount_percent?: number
           branch: string
           created_at?: string
+          discount_expires_at?: string | null
           id?: string
           normalized_score?: number
           section: string
@@ -72,8 +86,10 @@ export type Database = {
           year: number
         }
         Update: {
+          active_discount_percent?: number
           branch?: string
           created_at?: string
+          discount_expires_at?: string | null
           id?: string
           normalized_score?: number
           section?: string
@@ -249,6 +265,8 @@ export type Database = {
           status: string
           student_id: string
           updated_at: string
+          voucher_code: string | null
+          voucher_note: string
         }
         Insert: {
           created_at?: string
@@ -258,6 +276,8 @@ export type Database = {
           status?: string
           student_id: string
           updated_at?: string
+          voucher_code?: string | null
+          voucher_note?: string
         }
         Update: {
           created_at?: string
@@ -267,6 +287,8 @@ export type Database = {
           status?: string
           student_id?: string
           updated_at?: string
+          voucher_code?: string | null
+          voucher_note?: string
         }
         Relationships: [
           {
@@ -274,6 +296,45 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reward_stock: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          remaining_stock: number | null
+          reward_id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          remaining_stock?: number | null
+          reward_id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          remaining_stock?: number | null
+          reward_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_stock_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_stock_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
             referencedColumns: ["id"]
           },
         ]
@@ -288,6 +349,8 @@ export type Database = {
           name: string
           points_cost: number
           updated_at: string
+          uses_label: string
+          voucher_note: string
         }
         Insert: {
           active?: boolean
@@ -298,6 +361,8 @@ export type Database = {
           name: string
           points_cost: number
           updated_at?: string
+          uses_label?: string
+          voucher_note?: string
         }
         Update: {
           active?: boolean
@@ -308,6 +373,8 @@ export type Database = {
           name?: string
           points_cost?: number
           updated_at?: string
+          uses_label?: string
+          voucher_note?: string
         }
         Relationships: []
       }
@@ -400,6 +467,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      academic_points_for_sgpa: { Args: { p_sgpa: number }; Returns: number }
+      apply_class_rewards: {
+        Args: { p_staff_id: string }
+        Returns: {
+          class_label: string
+          discount_percent: number
+          expires_at: string
+        }[]
+      }
       apply_penalty: {
         Args: {
           p_points: number
@@ -446,6 +522,7 @@ export type Database = {
           team_name: string
         }[]
       }
+      generate_voucher_code: { Args: never; Returns: string }
       my_achievements: {
         Args: { p_student_id: string }
         Returns: {
@@ -480,6 +557,8 @@ export type Database = {
           points_cost: number
           reward_name: string
           status: string
+          voucher_code: string
+          voucher_note: string
         }[]
       }
       recompute_campus_stats: { Args: never; Returns: undefined }
@@ -489,6 +568,7 @@ export type Database = {
           message: string
           ok: boolean
           redemption_id: string
+          voucher_code: string
         }[]
       }
       register_for_event: {
@@ -574,6 +654,24 @@ export type Database = {
           staff_code: string
         }[]
       }
+      staff_mark_voucher_used: {
+        Args: { p_redemption_id: string; p_staff_id: string }
+        Returns: {
+          red_id: string
+          red_status: string
+        }[]
+      }
+      staff_my_penalties: {
+        Args: { p_staff_id: string }
+        Returns: {
+          citation: string
+          created_at: string
+          enrollment_number: string
+          id: string
+          points: number
+          student_name: string
+        }[]
+      }
       staff_pending_redemptions: {
         Args: { p_staff_id: string }
         Returns: {
@@ -599,10 +697,32 @@ export type Database = {
           year: number
         }[]
       }
+      staff_vouchers: {
+        Args: { p_query?: string; p_staff_id: string }
+        Returns: {
+          created_at: string
+          enrollment_number: string
+          id: string
+          points_cost: number
+          reward_name: string
+          status: string
+          student_name: string
+          voucher_code: string
+        }[]
+      }
       student_campus_plus_status: {
         Args: { p_student_id: string }
         Returns: {
           is_campus_plus: boolean
+        }[]
+      }
+      student_class_discount: {
+        Args: { p_student_id: string }
+        Returns: {
+          class_label: string
+          class_rank: number
+          discount_percent: number
+          expires_at: string
         }[]
       }
       student_leaderboard: {
