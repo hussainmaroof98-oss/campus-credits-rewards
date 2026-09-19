@@ -240,7 +240,7 @@ function LeaderboardPage() {
             <>
               {/* Podium */}
               <section className="mt-6 animate-rise rounded-3xl border border-border bg-surface/60 px-3 pb-3 pt-5">
-                <div className="flex items-end justify-center gap-3">
+                 <div className="flex items-end justify-center gap-1.5 sm:gap-3">
                   {podium.map((p, i) =>
                     p ? (
                       <div key={p.id} className="flex w-1/3 flex-col items-center">
@@ -256,12 +256,12 @@ function LeaderboardPage() {
                             ? initials(p.name)
                             : "?"}
                         </span>
-                        <p className="mt-2 line-clamp-1 text-center text-[11px] font-semibold">
+                         <p className="mt-2 line-clamp-1 max-w-full text-center text-[10px] font-semibold sm:text-[11px]">
                           {p.visibility === "public" || p.id === student?.id
                             ? p.name.split(" ")[0]
                             : (tiers.get(p.id) ?? "Bronze")}
                         </p>
-                        <p className="font-mono text-[11px] text-primary">
+                         <p className="font-mono text-[10px] text-primary sm:text-[11px]">
                           {p.reputation.toLocaleString("en-IN")}
                         </p>
                         <div

@@ -92,6 +92,8 @@
     oklch(0.2526 0.0849 259.08) 0%,
     oklch(0.6072 0.035 236.75) 100%
   );
+  --gradient-hero-aurora: linear-gradient(135deg, oklch(0.43 0.18 285), oklch(0.56 0.16 338) 52%, oklch(0.66 0.12 215));
+  --gradient-hero-ember: linear-gradient(135deg, oklch(0.36 0.13 25), oklch(0.57 0.14 55) 52%, oklch(0.69 0.1 90));
   --shadow-card: 0 20px 46px -22px oklch(0 0 0 / 78%);
   --shadow-lift: 0 8px 22px -12px oklch(0 0 0 / 68%);
   --shadow-frame: 0 40px 120px -40px oklch(0 0 0 / 92%);
@@ -142,6 +144,40 @@
 @utility card-hero {
   background-image: var(--gradient-hero);
   box-shadow: var(--shadow-card);
+}
+
+@utility card-hero-aurora {
+  background-image: var(--gradient-hero-aurora);
+  box-shadow: var(--shadow-card);
+}
+
+@utility card-hero-ember {
+  background-image: var(--gradient-hero-ember);
+  box-shadow: var(--shadow-card);
+}
+
+@utility app-stage {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: oklch(0 0 0);
+}
+
+@utility app-shell {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+@media (min-width: 640px) {
+  .app-stage { padding-block: 2rem; }
+  .app-shell {
+    border: 1px solid var(--border);
+    border-radius: 2.25rem;
+    box-shadow: var(--shadow-frame);
+  }
 }
 
 @utility btn-hero {

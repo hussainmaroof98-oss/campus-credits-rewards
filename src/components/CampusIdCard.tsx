@@ -10,6 +10,9 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Cpu } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+export type CardSkin = "navy" | "aurora" | "ember";
 
 function useCountUp(target: number, duration = 1200) {
   const [value, setValue] = useState(0);
@@ -45,6 +48,7 @@ export function CampusIdCard({
   delta,
   personalRank,
   classRank,
+  skin = "navy",
 }: {
   name: string;
   subtitle: string;
@@ -53,11 +57,12 @@ export function CampusIdCard({
   delta: number;
   personalRank: string;
   classRank: string;
+  skin?: CardSkin;
 }) {
   const reputation = useCountUp(target);
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] card-hero p-5 pb-4">
+    <div className={cn("relative overflow-hidden rounded-[28px] p-5 pb-4", skin === "aurora" ? "card-hero-aurora" : skin === "ember" ? "card-hero-ember" : "card-hero")}>
       {/* single soft light sweep */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-y-[-40%] left-0 w-1/3 animate-sheen bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
@@ -83,7 +88,7 @@ export function CampusIdCard({
           Reputation
         </p>
         <div className="mt-1 flex items-end gap-3">
-          <span className="number-depth font-mono text-[44px] font-bold leading-none tabular-nums text-foreground">
+          <span className="number-depth min-w-0 font-mono text-[clamp(2rem,11vw,2.75rem)] font-bold leading-none tabular-nums text-foreground">
             {reputation.toLocaleString("en-IN")}
           </span>
           <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-foreground/20 px-2 py-1 text-[11px] font-semibold text-foreground">

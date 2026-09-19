@@ -411,6 +411,7 @@ export type Database = {
       students: {
         Row: {
           branch: string
+          card_skin: string
           created_at: string
           credit_balance: number
           enrollment_number: string
@@ -428,6 +429,7 @@ export type Database = {
         }
         Insert: {
           branch: string
+          card_skin?: string
           created_at?: string
           credit_balance?: number
           enrollment_number: string
@@ -445,6 +447,7 @@ export type Database = {
         }
         Update: {
           branch?: string
+          card_skin?: string
           created_at?: string
           credit_balance?: number
           enrollment_number?: string
@@ -752,6 +755,13 @@ export type Database = {
           year: number
         }[]
       }
+      student_plus_profile: {
+        Args: { p_student_id: string }
+        Returns: {
+          card_skin: string
+          is_campus_plus: boolean
+        }[]
+      }
       student_register: {
         Args: {
           p_branch: string
@@ -770,6 +780,12 @@ export type Database = {
           personal_rank: number
           section: string
           year: number
+        }[]
+      }
+      student_set_card_skin: {
+        Args: { p_card_skin: string; p_student_id: string }
+        Returns: {
+          card_skin: string
         }[]
       }
       student_set_visibility: {
@@ -796,11 +812,35 @@ export type Database = {
           week_delta: number
         }[]
       }
+      student_store_discount: {
+        Args: { p_student_id: string }
+        Returns: {
+          class_discount_percent: number
+          class_label: string
+          class_rank: number
+          expires_at: string
+          plus_discount_percent: number
+          total_discount_percent: number
+        }[]
+      }
       student_subscribe_campus_plus: {
         Args: { p_student_id: string }
         Returns: {
           is_campus_plus: boolean
           ok: boolean
+        }[]
+      }
+      sync_academic_credits: {
+        Args: {
+          p_citation: string
+          p_sgpa: number
+          p_staff_id: string
+          p_student_id: string
+        }
+        Returns: {
+          credit_points: number
+          ledger_id: string
+          reputation_points: number
         }[]
       }
     }
