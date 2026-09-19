@@ -124,8 +124,9 @@ function Home() {
     queryKey: ["plus-profile", student?.id],
     enabled: Boolean(student?.id),
     queryFn: async () => {
+      if (!student) throw new Error("Student session missing");
       const { data, error } = await supabase.rpc("student_plus_profile", {
-        p_student_id: student!.id,
+        p_student_id: student.id,
       });
       if (error) throw error;
       return data?.[0] ?? null;

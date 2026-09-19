@@ -31,8 +31,8 @@ function PortfolioPage() {
   const navigate = useNavigate();
   const [student, setStudent] = useState<StudentSession | null>(null);
   useEffect(() => { const session = loadSession(); if (!session) navigate({ to: "/login", replace: true }); else setStudent(session); }, [navigate]);
-  const { data: plus } = useQuery({ queryKey: ["plus-profile", student?.id], enabled: Boolean(student?.id), queryFn: async () => { const { data, error } = await supabase.rpc("student_plus_profile", { p_student_id: student!.id }); if (error) throw error; return data?.[0] ?? null; } });
-  const { data: achievements, isLoading } = useQuery({ queryKey: ["portfolio", student?.id], enabled: Boolean(student?.id && plus?.is_campus_plus), queryFn: async () => { const { data, error } = await supabase.rpc("my_achievements", { p_student_id: student!.id }); if (error) throw error; return (data ?? []).filter((item) => !item.is_private && item.source !== "penalty") as Achievement[]; } });
+  const { data: plus } = useQuery({ queryKey: ["plus-profile", student?.id], enabled: Boolean(student?.id), queryFn: async () => { if (!student) throw new Error("Student session missing"); const { data, error } = await supabase.rpc("student_plus_profile", { p_student_id: student.id }); if (error) throw error; return data?.[0] ?? null; } });
+  const { data: achievements, isLoading } = useQuery({ queryKey: ["portfolio", student?.id], enabled: Boolean(student?.id && plus?.is_campus_plus), queryFn: async () => { if (!student) throw new Error("Student session missing"); const { data, error } = await supabase.rpc("my_achievements", { p_student_id: student.id }); if (error) throw error; return (data ?? []).filter((item) => !item.is_private && item.source !== "penalty") as Achievement[]; } });
   const total = useMemo(() => (achievements ?? []).reduce((sum, item) => sum + item.points, 0), [achievements]);
 
   return <main className="app-stage"><div className="app-shell min-h-screen"><div className="relative px-4 pb-16 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-6">

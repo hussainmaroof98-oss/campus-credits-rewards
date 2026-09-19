@@ -76,8 +76,9 @@ function CampusPlusPage() {
     queryKey: ["plus-profile", student?.id],
     enabled: Boolean(student?.id),
     queryFn: async () => {
+      if (!student) throw new Error("Student session missing");
       const { data, error } = await supabase.rpc("student_plus_profile", {
-        p_student_id: student!.id,
+        p_student_id: student.id,
       });
       if (error) throw error;
       return data?.[0] ?? null;
@@ -93,8 +94,9 @@ function CampusPlusPage() {
   // -------------------------------------------------------------------------
   const subscribe = useMutation({
     mutationFn: async () => {
+      if (!student) throw new Error("Student session missing");
       const { data, error } = await supabase.rpc("student_subscribe_campus_plus", {
-        p_student_id: student!.id,
+        p_student_id: student.id,
       });
       if (error) throw error;
       return Boolean(data?.[0]?.ok);
@@ -225,7 +227,7 @@ function CampusPlusPage() {
             <div className="mt-3 grid grid-cols-3 gap-2">
               {skins.map((skin) => {
                 const selected = (plusProfile?.card_skin ?? "navy") === skin.id;
-                return <button key={skin.id} disabled={!isPlus || chooseSkin.isPending} onClick={() => chooseSkin.mutate(skin.id)} aria-label={`Use ${skin.label} card skin`} className={cn("rounded-2xl border p-1.5 text-left transition-all", selected ? "border-primary" : "border-border", !isPlus && skin.id !== "navy" && "opacity-45")}><span className={cn("block aspect-[1.55] rounded-xl", skin.className)} /><span className="mt-1.5 block truncate text-center text-[10px] font-medium">{skin.label}</span></button>;
+                return <Button key={skin.id} variant="ghost" disabled={!isPlus || chooseSkin.isPending} onClick={() => chooseSkin.mutate(skin.id)} aria-label={`Use ${skin.label} card skin`} className={cn("h-auto min-w-0 flex-col rounded-2xl border p-1.5 text-left transition-all", selected ? "border-primary" : "border-border", !isPlus && skin.id !== "navy" && "opacity-45")}><span className={cn("block aspect-[1.55] w-full rounded-xl", skin.className)} /><span className="mt-1.5 block max-w-full truncate text-center text-[10px] font-medium">{skin.label}</span></Button>;
               })}
             </div>
           </section>
