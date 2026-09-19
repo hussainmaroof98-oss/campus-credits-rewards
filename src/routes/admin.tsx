@@ -55,17 +55,32 @@ export const Route = createFileRoute("/admin")({
   }),
 });
 
-type Tab = "pending" | "live" | "create" | "redemptions" | "penalty";
+type Tab = "pending" | "live" | "create" | "vouchers" | "penalty";
 
-type StaffRedemption = {
+type StaffVoucher = {
   id: string;
   student_name: string;
   enrollment_number: string;
   reward_name: string;
   points_cost: number;
   status: string;
+  voucher_code: string | null;
   created_at: string;
 };
+
+// ---------------------------------------------------------------------------
+// EVENT POINT PRESETS — guide rails so awards stay consistent across staff.
+// staff_award_points() hard-caps a single award at 400 points, matching the
+// top tier below. Staff can still type any custom number within that cap.
+// ---------------------------------------------------------------------------
+const AWARD_PRESETS: { label: string; hint: string; points: number }[] = [
+  { label: "Participation", hint: "20–40", points: 30 },
+  { label: "College-level win", hint: "150–250", points: 200 },
+  { label: "State/National win", hint: "300–400", points: 350 },
+  { label: "Volunteering", hint: "30–50", points: 40 },
+  { label: "Helping organize", hint: "50–80", points: 65 },
+];
+
 
 type EventRow = {
   id: string;
@@ -274,7 +289,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
     { key: "pending", label: "Pending Approval", icon: ClipboardList, count: pending.length },
     { key: "live", label: "Live Events", icon: Sparkles, count: live.length },
     { key: "create", label: "Create Event", icon: Plus },
-    { key: "redemptions", label: "Redemptions", icon: Gift },
+    { key: "vouchers", label: "Vouchers", icon: Gift },
     { key: "penalty", label: "Penalty", icon: ShieldAlert },
   ];
 
@@ -399,7 +414,7 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
 
         {tab === "create" && <CreateEventForm staff={staff} onCreated={() => setTab("pending")} />}
 
-        {tab === "redemptions" && <RedemptionsPanel staff={staff} />}
+        {tab === "vouchers" && <VouchersPanel staff={staff} />}
 
         {tab === "penalty" && <PenaltyPanel staff={staff} />}
 
@@ -533,7 +548,36 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                 </span>
               </div>
 
+              {/* Quick-select presets guide the default; custom numbers still allowed. */}
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {AWARD_PRESETS.map((p) => (
+                  <button
+                    key={p.label}
+                    onClick={() =>
+                      setDrafts((prev) => ({
+                        ...prev,
+                        [r.student_id]: {
+                          ...draft,
+                          points: String(p.points),
+                          note: draft.note || `${event.title} — ${p.label.toLowerCase()}`,
+                        },
+                      }))
+                    }
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-[11px] font-medium transition-colors",
+                      draft.points === String(p.points)
+                        ? "border-primary/60 bg-accent/60 text-foreground"
+                        : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {p.label}
+                    <span className="ml-1.5 text-[10px] opacity-70">{p.hint}</span>
+                  </button>
+                ))}
+              </div>
+
               <div className="mt-3 flex flex-wrap items-center gap-2">
+
                 <input
                   aria-label={`Points for ${r.student_name}`}
                   inputMode="numeric"
