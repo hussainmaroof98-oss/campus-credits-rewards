@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// CREDITS vs REPUTATION — the core rule staff must respect
+// Awarding event points raises BOTH credits (spendable) and reputation (standing).
+// Team bonuses and penalties change REPUTATION only.
+// Checkpoint bonuses pay CREDITS only, based on reputation standing.
+// -----------------------------------------------------------------------------
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
@@ -8,11 +15,13 @@ import {
   LogOut,
   Gift,
   Plus,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Users,
   X,
 } from "lucide-react";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -46,7 +55,7 @@ export const Route = createFileRoute("/admin")({
   }),
 });
 
-type Tab = "pending" | "live" | "create" | "redemptions";
+type Tab = "pending" | "live" | "create" | "redemptions" | "penalty";
 
 type StaffRedemption = {
   id: string;
@@ -266,7 +275,9 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
     { key: "live", label: "Live Events", icon: Sparkles, count: live.length },
     { key: "create", label: "Create Event", icon: Plus },
     { key: "redemptions", label: "Redemptions", icon: Gift },
+    { key: "penalty", label: "Penalty", icon: ShieldAlert },
   ];
+
 
   return (
     <div className="relative mx-auto w-full max-w-6xl px-6 py-10 lg:px-10">
@@ -381,8 +392,10 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
                 </div>
               )}
             </div>
+            </div>
           </div>
         )}
+
 
         {tab === "create" && <CreateEventForm staff={staff} onCreated={() => setTab("pending")} />}
 
