@@ -348,7 +348,10 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
         )}
 
         {tab === "live" && (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr]">
+          <div className="space-y-6">
+            <CheckpointPanel staff={staff} />
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr]">
+
             <div className="space-y-3">
               {live.map((event, i) => (
                 <button
@@ -384,6 +387,9 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
         {tab === "create" && <CreateEventForm staff={staff} onCreated={() => setTab("pending")} />}
 
         {tab === "redemptions" && <RedemptionsPanel staff={staff} />}
+
+        {tab === "penalty" && <PenaltyPanel staff={staff} />}
+
       </section>
     </div>
   );
@@ -569,7 +575,10 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
           );
         })}
       </ul>
+
+      <TeamBonusPanel staff={staff} event={event} rows={rows ?? []} />
     </div>
+
   );
 }
 
