@@ -5,9 +5,9 @@ export function ProgressRing({ value, rank }: { value: number; rank: string }) {
     <svg viewBox="0 0 80 80" className="h-20 w-20 shrink-0">
       <defs>
         <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="var(--teal)" />
-          <stop offset="60%" stopColor="var(--teal)" />
-          <stop offset="100%" stopColor="var(--teal-deep)" />
+          <stop offset="0%" stopColor="var(--primary)" />
+          <stop offset="60%" stopColor="var(--primary)" />
+          <stop offset="100%" stopColor="var(--accent)" />
         </linearGradient>
       </defs>
       <circle cx="40" cy="40" r={r} fill="none" stroke="var(--input)" strokeWidth="7" />

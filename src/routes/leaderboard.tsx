@@ -73,9 +73,9 @@ function initials(name: string) {
 }
 
 function medalFor(rank: number) {
-  if (rank === 1) return { Icon: Crown, cls: "text-sand" };
-  if (rank === 2) return { Icon: Medal, cls: "text-cream/80" };
-  if (rank === 3) return { Icon: Medal, cls: "text-teal-light" };
+  if (rank === 1) return { Icon: Crown, cls: "text-metal-gold" };
+  if (rank === 2) return { Icon: Medal, cls: "text-metal-silver" };
+  if (rank === 3) return { Icon: Medal, cls: "text-metal-bronze" };
   return null;
 }
 
@@ -150,10 +150,10 @@ function LeaderboardPage() {
     row.id === student?.id || row.visibility === "public" ? row.name : "Anonymous student";
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
-        <div className="blob -right-28 top-72 h-72 w-72 bg-sand/8" />
+    <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
+      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[var(--shadow-frame)]">
+        <div className="blob -left-24 -top-20 h-64 w-64 bg-primary/10" />
+        <div className="blob -right-28 top-72 h-72 w-72 bg-accent/20" />
 
         <div className="relative flex-1 px-5 pb-16 pt-6">
           <header className="flex items-center gap-3">
@@ -181,7 +181,7 @@ function LeaderboardPage() {
           <div className="relative mt-5 grid grid-cols-3 rounded-2xl border border-border bg-surface/70 p-1">
             <span
               className={cn(
-                "absolute inset-y-1 left-1 w-[calc(33.333%-0.1667rem)] rounded-xl bg-teal-deep/45 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                "absolute inset-y-1 left-1 w-[calc(33.333%-0.1667rem)] rounded-xl bg-accent/70 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 tab === "myclass" && "translate-x-[calc(100%+0.25rem)]",
                 tab === "classes" && "translate-x-[calc(200%+0.5rem)]",
               )}
@@ -208,7 +208,7 @@ function LeaderboardPage() {
           </div>
 
           {tab === "myclass" && student && (
-            <div className="animate-rise mt-4 flex items-center justify-between rounded-2xl border border-teal/40 bg-teal-deep/20 px-4 py-3">
+            <div className="animate-rise mt-4 flex items-center justify-between rounded-2xl border border-primary/40 bg-accent/40 px-4 py-3">
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                   Your class
@@ -218,7 +218,7 @@ function LeaderboardPage() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-display text-lg font-bold text-cream">
+                <p className="font-display text-lg font-bold text-foreground">
                   {myIndex >= 0 ? `#${myIndex + 1}` : "—"}
                 </p>
                 <p className="text-[11px] text-muted-foreground">of {scoped.length} students</p>
@@ -248,8 +248,8 @@ function LeaderboardPage() {
                           className={cn(
                             "grid place-items-center rounded-full border font-display font-bold",
                             i === 1
-                              ? "h-14 w-14 border-sand/60 bg-teal-deep/40 text-base text-cream"
-                              : "h-11 w-11 border-border bg-teal-deep/25 text-sm text-cream/90",
+                              ? "h-14 w-14 border-metal-gold/60 bg-accent/65 text-base text-foreground"
+                              : "h-11 w-11 border-border bg-accent/50 text-sm text-foreground/90",
                           )}
                         >
                           {p.visibility === "public" || p.id === student?.id
@@ -261,16 +261,16 @@ function LeaderboardPage() {
                             ? p.name.split(" ")[0]
                             : (tiers.get(p.id) ?? "Bronze")}
                         </p>
-                        <p className="font-mono text-[11px] text-sand">
+                        <p className="font-mono text-[11px] text-primary">
                           {p.reputation.toLocaleString("en-IN")}
                         </p>
                         <div
                           className={cn(
-                            "mt-2 w-full rounded-t-xl bg-gradient-to-t from-teal-deep/15 to-teal/35 transition-all duration-500",
+                            "mt-2 w-full rounded-t-xl bg-gradient-to-t from-accent/15 to-primary/35 transition-all duration-500",
                             podiumHeights[i],
                           )}
                         >
-                          <p className="pt-2 text-center font-display text-sm font-bold text-cream/85">
+                          <p className="pt-2 text-center font-display text-sm font-bold text-foreground/85">
                             {i === 1 ? 1 : i === 0 ? 2 : 3}
                           </p>
                         </div>
@@ -293,8 +293,8 @@ function LeaderboardPage() {
                     <article
                       key={row.id}
                       className={cn(
-                        "animate-rise group relative overflow-hidden rounded-2xl border bg-surface/70 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]",
-                        mine ? "border-teal/60 bg-teal-deep/20" : "border-border",
+                        "animate-rise group relative overflow-hidden rounded-2xl border bg-surface/70 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]",
+                        mine ? "border-primary/60 bg-accent/40" : "border-border",
                       )}
                       style={{ animationDelay: `${i * 45}ms` }}
                     >
@@ -302,14 +302,14 @@ function LeaderboardPage() {
                         <span className="w-6 shrink-0 text-center font-display text-sm font-bold text-muted-foreground">
                           {anonymous ? "–" : rank}
                         </span>
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-teal-deep/25 font-display text-xs font-bold text-cream/90">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-accent/50 font-display text-xs font-bold text-foreground/90">
                           {anonymous ? "?" : initials(row.name)}
                         </span>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold leading-tight">
                             {displayName(row)}
                             {mine && (
-                              <span className="ml-2 rounded-full bg-teal/25 px-2 py-0.5 text-[10px] font-medium text-teal-light">
+                              <span className="ml-2 rounded-full bg-primary/25 px-2 py-0.5 text-[10px] font-medium text-primary">
                                 You
                               </span>
                             )}
@@ -329,14 +329,14 @@ function LeaderboardPage() {
                           </p>
                           <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-input">
                             <span
-                              className="block h-full rounded-full bg-gradient-to-r from-teal-deep to-sand transition-[width] duration-700 ease-out"
+                              className="block h-full rounded-full bg-gradient-to-r from-accent to-primary transition-[width] duration-700 ease-out"
                               style={{
                                 width: `${Math.max(8, (row.reputation / leaderScore) * 100)}%`,
                               }}
                             />
                           </div>
                         </div>
-                        <span className="shrink-0 font-mono text-sm font-bold text-cream">
+                        <span className="shrink-0 font-mono text-sm font-bold text-foreground">
                           {row.reputation.toLocaleString("en-IN")}
                         </span>
                       </div>
@@ -362,12 +362,12 @@ function LeaderboardPage() {
                   <article
                     key={c.id}
                     className={cn(
-                      "animate-rise flex items-center gap-3 rounded-2xl border bg-surface/70 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]",
-                      mine ? "border-teal/60 bg-teal-deep/20" : "border-border",
+                      "animate-rise flex items-center gap-3 rounded-2xl border bg-surface/70 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]",
+                      mine ? "border-primary/60 bg-accent/40" : "border-border",
                     )}
                     style={{ animationDelay: `${i * 45}ms` }}
                   >
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-teal-deep/25 text-teal-light">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-accent/50 text-primary">
                       {medal ? (
                         <medal.Icon className={cn("h-4 w-4", medal.cls)} />
                       ) : (
@@ -378,7 +378,7 @@ function LeaderboardPage() {
                       <p className="truncate text-sm font-semibold leading-tight">
                         {c.branch.split(" ").pop()}-{c.section}
                         {mine && (
-                          <span className="ml-2 rounded-full bg-teal/25 px-2 py-0.5 text-[10px] font-medium text-teal-light">
+                          <span className="ml-2 rounded-full bg-primary/25 px-2 py-0.5 text-[10px] font-medium text-primary">
                             Your class
                           </span>
                         )}
@@ -390,12 +390,12 @@ function LeaderboardPage() {
 
                       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-input">
                         <span
-                          className="block h-full rounded-full bg-gradient-to-r from-teal-deep to-sand transition-[width] duration-700 ease-out"
+                          className="block h-full rounded-full bg-gradient-to-r from-accent to-primary transition-[width] duration-700 ease-out"
                           style={{ width: `${Math.min(100, Number(c.normalized_score))}%` }}
                         />
                       </div>
                     </div>
-                    <span className="shrink-0 font-mono text-sm font-bold text-cream">
+                    <span className="shrink-0 font-mono text-sm font-bold text-foreground">
                       {Math.round(Number(c.normalized_score))}
                     </span>
                   </article>
@@ -414,17 +414,17 @@ function LeaderboardPage() {
         {tab !== "classes" && myRow && (
           <div className="sticky bottom-0 z-20 mt-auto border-t border-border bg-surface/85 px-5 py-3 backdrop-blur-xl">
             <div className="flex items-center gap-3">
-              <span className="w-6 text-center font-display text-sm font-bold text-teal-light">
+              <span className="w-6 text-center font-display text-sm font-bold text-primary">
                 {myIndex + 1}
               </span>
-              <span className="grid h-9 w-9 place-items-center rounded-full border border-teal/50 bg-teal-deep/30 font-display text-xs font-bold text-cream">
+              <span className="grid h-9 w-9 place-items-center rounded-full border border-primary/50 bg-accent/55 font-display text-xs font-bold text-foreground">
                 {initials(myRow.name)}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold leading-tight">
                   Your position
                   {myRow.visibility !== "public" && (
-                    <span className="ml-2 rounded-full border border-border bg-white/5 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    <span className="ml-2 rounded-full border border-border bg-secondary/50 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                       {myRow.visibility === "private" ? "Hidden from others" : "Tier only"}
                     </span>
                   )}
@@ -435,7 +435,7 @@ function LeaderboardPage() {
                     : `${(rows[myIndex - 1]!.reputation - myRow.reputation).toLocaleString("en-IN")} reputation to rank ${myIndex}`}
                 </p>
               </div>
-              <span className="font-mono text-sm font-bold text-cream">
+              <span className="font-mono text-sm font-bold text-foreground">
                 {myRow.reputation.toLocaleString("en-IN")}
               </span>
             </div>

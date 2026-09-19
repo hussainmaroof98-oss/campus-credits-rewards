@@ -24,8 +24,8 @@ export function tierFor(position: number, total: number): Tier {
 }
 
 export const tierClass: Record<Tier, string> = {
-  Platinum: "border-cream/50 bg-cream/15 text-cream",
-  Gold: "border-sand/50 bg-sand/15 text-sand",
-  Silver: "border-pale-blue/40 bg-pale-blue/10 text-pale-blue",
-  Bronze: "border-border bg-white/5 text-muted-foreground",
+  Platinum: "border-metal-platinum/55 bg-metal-platinum/15 text-metal-platinum",
+  Gold: "border-metal-gold/55 bg-metal-gold/15 text-metal-gold",
+  Silver: "border-metal-silver/55 bg-metal-silver/15 text-metal-silver",
+  Bronze: "border-metal-bronze/55 bg-metal-bronze/15 text-metal-bronze",
 };

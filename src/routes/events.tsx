@@ -167,8 +167,8 @@ function EventsPage() {
         key={event.id}
         className={cn(
           "animate-rise rounded-2xl border bg-surface/70 p-4 transition-all duration-200",
-          reg ? "border-teal/55 bg-teal-deep/15" : "border-border",
-          !readOnly && "hover:-translate-y-0.5 hover:border-teal/45 hover:shadow-[var(--shadow-lift)]",
+          reg ? "border-primary/55 bg-accent/30" : "border-border",
+          !readOnly && "hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]",
         )}
         style={{ animationDelay: `${index * 45}ms` }}
       >
@@ -181,7 +181,7 @@ function EventsPage() {
             </p>
           </div>
           {event.team_required && (
-            <span className="shrink-0 rounded-full bg-teal/25 px-2 py-0.5 text-[10px] font-medium text-teal-light">
+            <span className="shrink-0 rounded-full bg-primary/25 px-2 py-0.5 text-[10px] font-medium text-primary">
               Team event
             </span>
           )}
@@ -195,7 +195,7 @@ function EventsPage() {
           <div className="mt-3 flex items-center gap-2">
             {reg ? (
               <>
-                <span className="flex items-center gap-1.5 rounded-full border border-teal/40 bg-teal-deep/25 px-3 py-1.5 text-[11px] font-medium text-teal-light">
+                <span className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-accent/50 px-3 py-1.5 text-[11px] font-medium text-primary">
                   <Check className="h-3 w-3" />
                   Registered
                 </span>
@@ -220,7 +220,7 @@ function EventsPage() {
                   setTeamName("");
                   setOpenTeamFor(panelOpen ? null : event.id);
                 }}
-                className="btn-hero rounded-full px-4 py-2 font-display text-[12px] font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5"
+                className="btn-hero rounded-full px-4 py-2 font-display text-[12px] font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5"
               >
                 Apply with team
               </button>
@@ -228,7 +228,7 @@ function EventsPage() {
               <button
                 disabled={register.isPending}
                 onClick={() => register.mutate({ eventId: event.id })}
-                className="btn-hero rounded-full px-4 py-2 font-display text-[12px] font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
+                className="btn-hero rounded-full px-4 py-2 font-display text-[12px] font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
               >
                 {register.isPending ? "Applying…" : "Apply"}
               </button>
@@ -237,7 +237,7 @@ function EventsPage() {
         )}
 
         {!readOnly && panelOpen && event.team_required && (
-          <div className="animate-rise mt-3 rounded-2xl border border-border bg-white/5 p-3 backdrop-blur-sm">
+          <div className="animate-rise mt-3 rounded-2xl border border-border bg-secondary/50 p-3 backdrop-blur-sm">
             <label
               htmlFor={`team-${event.id}`}
               className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
@@ -249,7 +249,7 @@ function EventsPage() {
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Byte Squad"
-              className="mt-1.5 w-full rounded-xl border border-border bg-white/5 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/40"
+              className="mt-1.5 w-full rounded-xl border border-border bg-secondary/50 px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
             {formError && (
               <p
@@ -269,7 +269,7 @@ function EventsPage() {
                 }
                 register.mutate({ eventId: event.id, team: name });
               }}
-              className="btn-hero mt-3 w-full rounded-xl py-2.5 font-display text-[12px] font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
+              className="btn-hero mt-3 w-full rounded-xl py-2.5 font-display text-[12px] font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
             >
               {register.isPending ? "Saving…" : reg ? "Update team" : "Join team"}
             </button>
@@ -282,13 +282,13 @@ function EventsPage() {
                 <ul className="mt-2 space-y-1.5">
                   {(teammates ?? []).map((t) => (
                     <li key={t.student_id} className="flex items-center gap-2 text-xs">
-                      <span className="grid h-6 w-6 place-items-center rounded-full border border-border bg-teal-deep/25 font-display text-[10px] font-bold text-cream/90">
+                      <span className="grid h-6 w-6 place-items-center rounded-full border border-border bg-accent/50 font-display text-[10px] font-bold text-foreground/90">
                         {t.name.charAt(0)}
                       </span>
                       <span className="truncate">
                         {t.name}
                         {t.student_id === student?.id && (
-                          <span className="ml-1.5 text-[10px] text-teal-light">You</span>
+                          <span className="ml-1.5 text-[10px] text-primary">You</span>
                         )}
                       </span>
                     </li>
@@ -308,10 +308,10 @@ function EventsPage() {
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
-        <div className="blob -right-28 top-72 h-72 w-72 bg-sand/8" />
+    <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
+      <div className="relative flex w-full max-w-[390px] flex-col overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[var(--shadow-frame)]">
+        <div className="blob -left-24 -top-20 h-64 w-64 bg-primary/10" />
+        <div className="blob -right-28 top-72 h-72 w-72 bg-accent/20" />
 
         <div className="relative flex-1 px-5 pb-16 pt-6">
           <header className="flex items-center gap-3">
@@ -332,7 +332,7 @@ function EventsPage() {
           <div className="relative mt-5 grid grid-cols-2 rounded-2xl border border-border bg-surface/70 p-1">
             <span
               className={cn(
-                "absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-xl bg-teal-deep/45 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                "absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-xl bg-accent/70 shadow-[var(--shadow-lift)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
                 tab === "mine" && "translate-x-[calc(100%+0.5rem)]",
               )}
             />
@@ -379,7 +379,7 @@ function EventsPage() {
               {(registrations ?? []).map((r, i) => (
                 <article
                   key={r.id}
-                  className="animate-rise rounded-2xl border border-teal/45 bg-teal-deep/15 p-4"
+                  className="animate-rise rounded-2xl border border-primary/45 bg-accent/30 p-4"
                   style={{ animationDelay: `${i * 45}ms` }}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -390,7 +390,7 @@ function EventsPage() {
                         {formatDate(r.date)}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-teal/25 px-2 py-0.5 text-[10px] font-medium capitalize text-teal-light">
+                    <span className="shrink-0 rounded-full bg-primary/25 px-2 py-0.5 text-[10px] font-medium capitalize text-primary">
                       {r.status}
                     </span>
                   </div>
@@ -416,7 +416,7 @@ function EventsPage() {
             <section className="mt-7">
               <button
                 onClick={() => setShowPast((v) => !v)}
-                className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface/60 px-4 py-3 text-left transition-colors hover:border-teal/40"
+                className="flex w-full items-center justify-between rounded-2xl border border-border bg-surface/60 px-4 py-3 text-left transition-colors hover:border-primary/40"
               >
                 <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   <History className="h-3.5 w-3.5" />

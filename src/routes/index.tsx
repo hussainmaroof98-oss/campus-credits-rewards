@@ -42,6 +42,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Earn credits, climb your class leaderboard, redeem real rewards.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
 });
@@ -138,10 +140,10 @@ function Home() {
 
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-16 h-64 w-64 bg-teal/12" />
-        <div className="blob -right-24 top-64 h-72 w-72 bg-teal-light/10" />
+    <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
+      <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[var(--shadow-frame)]">
+        <div className="blob -left-24 -top-16 h-64 w-64 bg-primary/10" />
+        <div className="blob -right-24 top-64 h-72 w-72 bg-accent/20" />
 
         <div className="relative px-5 pb-14 pt-6">
           <header className="flex items-center justify-between">
@@ -168,7 +170,7 @@ function Home() {
             <div className="flex items-center gap-2">
               <h1 className="font-display text-2xl font-bold">Hi, {firstName}</h1>
               {isPlus && (
-                <span className="flex items-center gap-1 rounded-full border border-sand/40 bg-sand/15 px-2 py-0.5 text-[10px] font-semibold text-sand">
+                <span className="flex items-center gap-1 rounded-full border border-primary/40 bg-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary">
                   <Crown className="h-3 w-3" />
                   Campus Plus
                 </span>
@@ -226,9 +228,9 @@ function Home() {
               <button
                 key={label}
                 onClick={() => to && navigate({ to })}
-                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-1.5 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[var(--shadow-lift)]"
+                className="group flex flex-col items-center gap-2 rounded-2xl border border-border bg-surface/80 px-1.5 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-lift)]"
               >
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-teal-deep/25 text-teal-light transition-colors group-hover:bg-teal-deep/35">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-accent/50 text-primary transition-colors group-hover:bg-accent/60">
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="text-center text-[10px] font-medium leading-tight text-foreground/85">
@@ -248,7 +250,7 @@ function Home() {
                 const Icon = sourceIcon[item.source as keyof typeof sourceIcon] ?? Trophy;
                 return (
                   <li key={item.id} className="relative">
-                    <span className="absolute -left-11 top-0 grid h-9 w-9 place-items-center rounded-full border border-teal/40 bg-teal-deep/20 text-teal-light">
+                    <span className="absolute -left-11 top-0 grid h-9 w-9 place-items-center rounded-full border border-primary/40 bg-accent/40 text-primary">
                       <Icon className="h-4 w-4" />
                     </span>
                     <div className="flex items-start justify-between gap-3">
@@ -262,7 +264,7 @@ function Home() {
                             .join(" · ")}
                         </p>
                       </div>
-                      <span className="font-mono text-sm font-bold text-pale-blue">
+                      <span className="font-mono text-sm font-bold text-foreground">
                         {item.points > 0 ? "+" : ""}
                         {item.points}
                       </span>

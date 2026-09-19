@@ -20,6 +20,8 @@ export const Route = createFileRoute("/login")({
         property: "og:description",
         content: "Sign in with your enrollment number to see your campus credits.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
@@ -66,10 +68,10 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-[oklch(0.278_0.026_258)] py-0 sm:py-8">
-      <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[0_40px_120px_-40px_rgba(0,0,0,0.7)]">
-        <div className="blob -left-24 -top-20 h-64 w-64 bg-teal/12" />
-        <div className="blob -right-24 bottom-0 h-72 w-72 bg-teal-light/10" />
+    <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
+      <div className="relative w-full max-w-[390px] overflow-hidden bg-background sm:rounded-[36px] sm:border sm:border-border sm:shadow-[var(--shadow-frame)]">
+        <div className="blob -left-24 -top-20 h-64 w-64 bg-primary/10" />
+        <div className="blob -right-24 bottom-0 h-72 w-72 bg-accent/20" />
 
         <div className="relative flex min-h-screen flex-col px-6 pb-12 pt-24 sm:min-h-[720px]">
           <div className="animate-rise text-center">
@@ -93,7 +95,7 @@ function LoginPage() {
                 onChange={(e) => setEnrollment(e.target.value)}
                 autoComplete="username"
                 aria-invalid={Boolean(error)}
-                className="mt-1.5 w-full rounded-2xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/40"
+                className="mt-1.5 w-full rounded-2xl border border-border bg-secondary/50 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 placeholder="2023CSE042"
               />
             </div>
@@ -112,7 +114,7 @@ function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 aria-invalid={Boolean(error)}
-                className="mt-1.5 w-full rounded-2xl border border-border bg-white/5 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/40"
+                className="mt-1.5 w-full rounded-2xl border border-border bg-secondary/50 px-4 py-3 text-sm text-foreground backdrop-blur-sm placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 placeholder="••••••••"
               />
               {error ? (
@@ -132,14 +134,14 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-hero mt-2 w-full rounded-2xl py-3.5 font-display text-sm font-bold text-[oklch(0.28_0.03_250)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
+              className="btn-hero mt-2 w-full rounded-2xl py-3.5 font-display text-sm font-bold text-primary-foreground transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-70"
             >
               {loading ? "Logging in…" : "Log In"}
             </button>
 
             <p className="pt-1 text-center text-xs text-muted-foreground">
               New here?{" "}
-              <Link to="/signup" className="font-semibold text-teal-light hover:underline">
+              <Link to="/signup" className="font-semibold text-primary hover:underline">
                 Sign up
               </Link>
             </p>
