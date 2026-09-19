@@ -1,13 +1,30 @@
+// -----------------------------------------------------------------------------
+// CREDITS vs REPUTATION — the core rule of the app
+// Reputation = standing (achievements ledger only) → drives every rank.
+// Credits    = spendable currency (point ledger only) → spent on rewards.
+// Spending credits never lowers standing; a penalty never removes credits.
+// -----------------------------------------------------------------------------
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Gift, CalendarDays, Trophy, Droplets, GraduationCap, LogOut, Crown } from "lucide-react";
+import {
+  Gift,
+  CalendarDays,
+  Trophy,
+  Droplets,
+  GraduationCap,
+  LogOut,
+  Crown,
+  ScrollText,
+} from "lucide-react";
 
 import avatar from "@/assets/avatar-aarav.jpg";
 import { CampusIdCard } from "@/components/CampusIdCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { supabase } from "@/integrations/supabase/client";
 import { clearSession, loadSession, type StudentSession } from "@/lib/session";
+
 
 export const Route = createFileRoute("/")({
   ssr: false,

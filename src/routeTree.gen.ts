@@ -15,6 +15,7 @@ import { Route as CampusPlusRouteImport } from './routes/campus-plus'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RedeemRouteImport } from './routes/redeem'
 import { Route as SignupRouteImport } from './routes/signup'
 
@@ -48,6 +49,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RedeemRoute = RedeemRouteImport.update({
   id: '/redeem',
   path: '/redeem',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/redeem': typeof RedeemRoute
   '/signup': typeof SignupRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/redeem': typeof RedeemRoute
   '/signup': typeof SignupRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/redeem': typeof RedeemRoute
   '/signup': typeof SignupRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/leaderboard'
     | '/login'
+    | '/profile'
     | '/redeem'
     | '/signup'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/leaderboard'
     | '/login'
+    | '/profile'
     | '/redeem'
     | '/signup'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/leaderboard'
     | '/login'
+    | '/profile'
     | '/redeem'
     | '/signup'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   RedeemRoute: typeof RedeemRoute
   SignupRoute: typeof SignupRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/redeem': {
       id: '/redeem'
       path: '/redeem'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   RedeemRoute: RedeemRoute,
   SignupRoute: SignupRoute,
 }
