@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// CREDITS vs REPUTATION — the core rule staff must respect
+// Awarding event points raises BOTH credits (spendable) and reputation (standing).
+// Team bonuses and penalties change REPUTATION only.
+// Checkpoint bonuses pay CREDITS only, based on reputation standing.
+// -----------------------------------------------------------------------------
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
@@ -8,11 +15,13 @@ import {
   LogOut,
   Gift,
   Plus,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Users,
   X,
 } from "lucide-react";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -46,7 +55,7 @@ export const Route = createFileRoute("/admin")({
   }),
 });
 
-type Tab = "pending" | "live" | "create" | "redemptions";
+type Tab = "pending" | "live" | "create" | "redemptions" | "penalty";
 
 type StaffRedemption = {
   id: string;
@@ -266,7 +275,9 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
     { key: "live", label: "Live Events", icon: Sparkles, count: live.length },
     { key: "create", label: "Create Event", icon: Plus },
     { key: "redemptions", label: "Redemptions", icon: Gift },
+    { key: "penalty", label: "Penalty", icon: ShieldAlert },
   ];
+
 
   return (
     <div className="relative mx-auto w-full max-w-6xl px-6 py-10 lg:px-10">
@@ -348,7 +359,10 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
         )}
 
         {tab === "live" && (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr]">
+          <div className="space-y-6">
+            <CheckpointPanel staff={staff} />
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr]">
+
             <div className="space-y-3">
               {live.map((event, i) => (
                 <button
@@ -378,12 +392,17 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
                 </div>
               )}
             </div>
+            </div>
           </div>
         )}
+
 
         {tab === "create" && <CreateEventForm staff={staff} onCreated={() => setTab("pending")} />}
 
         {tab === "redemptions" && <RedemptionsPanel staff={staff} />}
+
+        {tab === "penalty" && <PenaltyPanel staff={staff} />}
+
       </section>
     </div>
   );
@@ -569,7 +588,10 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
           );
         })}
       </ul>
+
+      <TeamBonusPanel staff={staff} event={event} rows={rows ?? []} />
     </div>
+
   );
 }
 
@@ -822,3 +844,407 @@ function RedemptionsPanel({ staff }: { staff: StaffSession }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Checkpoint bonuses (credits paid out for reputation standing)               */
+/* -------------------------------------------------------------------------- */
+
+function CheckpointPanel({ staff }: { staff: StaffSession }) {
+  const [result, setResult] = useState<string>("");
+  const [error, setError] = useState("");
+
+  // Manually triggered for now — a scheduled monthly job replaces this later.
+  const run = useMutation({
+    mutationFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("run_checkpoint_bonuses", {
+        p_staff_id: staff.id,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? [])[0] ?? null;
+    },
+    onSuccess: (row) => {
+      setError("");
+      setResult(
+        row
+          ? `${row.position_bonuses} position bonuses and ${row.growth_bonuses} growth bonuses paid out in credits.`
+          : "Checkpoint complete.",
+      );
+    },
+    onError: () => setError("Could not run the checkpoint. Please try again."),
+  });
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface/70 p-5">
+      <h2 className="font-display text-base font-bold">Monthly checkpoint</h2>
+      <p className="mt-1 max-w-xl text-[12px] leading-relaxed text-muted-foreground">
+        Pays spendable credits to the top 3 of every section, the top 3 course-wide, and anyone
+        who improved their rank since the last checkpoint. Reputation is not changed.
+      </p>
+      <button
+        disabled={run.isPending}
+        onClick={() => run.mutate()}
+        className={cn(primaryBtn, "mt-4")}
+      >
+        {run.isPending ? "Running…" : "Run Checkpoint Bonuses"}
+      </button>
+      {result && (
+        <p className="mt-3 rounded-xl border border-teal/40 bg-teal-deep/20 px-3 py-2 text-xs font-medium text-teal-light">
+          {result}
+        </p>
+      )}
+      {error && (
+        <p
+          role="alert"
+          className="mt-3 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+        >
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Team bonus (reputation only)                                                */
+/* -------------------------------------------------------------------------- */
+
+function TeamBonusPanel({
+  staff,
+  event,
+  rows,
+}: {
+  staff: StaffSession;
+  event: EventRow;
+  rows: StaffRegistration[];
+}) {
+  const [picked, setPicked] = useState<string[]>([]);
+  const [each, setEach] = useState("100");
+  const [mvp, setMvp] = useState("");
+  const [mvpBonus, setMvpBonus] = useState("50");
+  const [error, setError] = useState("");
+  const [done, setDone] = useState("");
+
+  useEffect(() => {
+    setPicked([]);
+    setMvp("");
+    setDone("");
+    setError("");
+  }, [event.id]);
+
+  const award = useMutation({
+    mutationFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("award_team_bonus", {
+        p_staff_id: staff.id,
+        p_event_id: event.id,
+        p_student_ids: picked,
+        p_reputation_each: Math.trunc(Number(each)),
+        ...(mvp ? { p_mvp_student_id: mvp } : {}),
+        p_mvp_bonus: mvp ? Math.trunc(Number(mvpBonus) || 0) : 0,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? [])[0]?.awarded ?? picked.length;
+    },
+    onSuccess: (count) => {
+      setError("");
+      setDone(`Team reputation bonus given to ${count} students.`);
+      setPicked([]);
+      setMvp("");
+    },
+    onError: () => setError("Could not award the team bonus. Please try again."),
+  });
+
+  return (
+    <div className="mt-6 rounded-2xl border border-teal/40 bg-teal-deep/15 p-4">
+      <h3 className="font-display text-sm font-bold">Team bonus (reputation)</h3>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        Adds standing to everyone on the team. Spendable credits are unaffected.
+      </p>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {rows.map((r) => {
+          const on = picked.includes(r.student_id);
+          return (
+            <button
+              key={r.student_id}
+              onClick={() =>
+                setPicked((prev) =>
+                  on ? prev.filter((id) => id !== r.student_id) : [...prev, r.student_id],
+                )
+              }
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors",
+                on
+                  ? "border-teal/60 bg-teal-deep/40 text-foreground"
+                  : "border-border bg-white/5 text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {r.student_name}
+              {r.team_name ? ` · ${r.team_name}` : ""}
+            </button>
+          );
+        })}
+        {rows.length === 0 && (
+          <p className="text-[12px] text-muted-foreground">No registrations to reward yet.</p>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <input
+          aria-label="Reputation per member"
+          inputMode="numeric"
+          value={each}
+          onChange={(e) => setEach(e.target.value)}
+          placeholder="Reputation each"
+          className={cn(inputClass, "w-40 px-3 py-2")}
+        />
+        <select
+          aria-label="MVP"
+          value={mvp}
+          onChange={(e) => setMvp(e.target.value)}
+          className={cn(inputClass, "w-56 px-3 py-2")}
+        >
+          <option value="">No MVP</option>
+          {rows
+            .filter((r) => picked.includes(r.student_id))
+            .map((r) => (
+              <option key={r.student_id} value={r.student_id}>
+                MVP · {r.student_name}
+              </option>
+            ))}
+        </select>
+        {mvp && (
+          <input
+            aria-label="MVP bonus"
+            inputMode="numeric"
+            value={mvpBonus}
+            onChange={(e) => setMvpBonus(e.target.value)}
+            placeholder="MVP bonus"
+            className={cn(inputClass, "w-32 px-3 py-2")}
+          />
+        )}
+        <button
+          disabled={award.isPending}
+          onClick={() => {
+            setDone("");
+            if (picked.length === 0) {
+              setError("Pick at least one team member");
+              return;
+            }
+            if (!Number.isFinite(Number(each)) || Number(each) === 0) {
+              setError("Enter a non-zero reputation amount");
+              return;
+            }
+            setError("");
+            award.mutate();
+          }}
+          className={cn(primaryBtn, "px-4 py-2 text-[12px]")}
+        >
+          Award team bonus
+        </button>
+      </div>
+
+      {done && (
+        <p className="mt-3 text-[12px] font-medium text-teal-light">{done}</p>
+      )}
+      {error && (
+        <p role="alert" className="mt-3 text-[12px] font-medium text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Penalty — deliberately severe styling, reputation only, always private      */
+/* -------------------------------------------------------------------------- */
+
+type SearchedStudent = {
+  id: string;
+  name: string;
+  enrollment_number: string;
+  branch: string;
+  section: string;
+  year: number;
+  reputation: number;
+  credit_balance: number;
+};
+
+function PenaltyPanel({ staff }: { staff: StaffSession }) {
+  const [query, setQuery] = useState("");
+  const [picked, setPicked] = useState<SearchedStudent | null>(null);
+  const [points, setPoints] = useState("");
+  const [reason, setReason] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState("");
+
+  const { data: results } = useQuery({
+    queryKey: ["student-search", query],
+    enabled: query.trim().length >= 2,
+    queryFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("staff_search_students", {
+        p_staff_id: staff.id,
+        p_query: query.trim(),
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? []) as SearchedStudent[];
+    },
+  });
+
+  const penalise = useMutation({
+    mutationFn: async () => {
+      const { error: rpcError } = await supabase.rpc("apply_penalty", {
+        p_staff_id: staff.id,
+        p_student_id: picked!.id,
+        p_points: -Math.abs(Math.trunc(Number(points))),
+        p_reason: reason.trim(),
+      });
+      if (rpcError) throw rpcError;
+    },
+    onSuccess: () => {
+      setDone(`Penalty of ${Math.abs(Math.trunc(Number(points)))} reputation recorded.`);
+      setError("");
+      setConfirming(false);
+      setPoints("");
+      setReason("");
+      setPicked(null);
+      setQuery("");
+    },
+    onError: () => {
+      setConfirming(false);
+      setError("Could not apply the penalty. Please try again.");
+    },
+  });
+
+  return (
+    <div className="max-w-2xl rounded-2xl border-2 border-destructive/50 bg-destructive/5 p-6">
+      <div className="flex items-center gap-2">
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-destructive/50 bg-destructive/15 text-destructive">
+          <ShieldAlert className="h-4 w-4" />
+        </span>
+        <div>
+          <h2 className="font-display text-base font-bold text-destructive">Apply penalty</h2>
+          <p className="text-[11px] text-muted-foreground">
+            Deducts reputation only — never credits. Recorded privately on the student&apos;s own
+            achievement ledger. Use sparingly and always with a clear reason.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        <div>
+          <label htmlFor="penalty-search" className={labelClass}>
+            Student
+          </label>
+          <input
+            id="penalty-search"
+            value={picked ? `${picked.name} · ${picked.enrollment_number}` : query}
+            onChange={(e) => {
+              setPicked(null);
+              setQuery(e.target.value);
+            }}
+            placeholder="Search by name or enrollment number"
+            className={cn(inputClass, "mt-1.5")}
+          />
+          {!picked && (results ?? []).length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {(results ?? []).map((s) => (
+                <li key={s.id}>
+                  <button
+                    onClick={() => setPicked(s)}
+                    className="w-full rounded-xl border border-border bg-surface/70 px-3 py-2 text-left text-[12px] transition-colors hover:border-destructive/40"
+                  >
+                    <span className="font-semibold">{s.name}</span>
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {s.enrollment_number} · {s.reputation} reputation
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <div className="w-40">
+            <label htmlFor="penalty-points" className={labelClass}>
+              Reputation to remove
+            </label>
+            <input
+              id="penalty-points"
+              inputMode="numeric"
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
+              placeholder="50"
+              className={cn(inputClass, "mt-1.5")}
+            />
+          </div>
+          <div className="min-w-[16rem] flex-1">
+            <label htmlFor="penalty-reason" className={labelClass}>
+              Reason (citation)
+            </label>
+            <input
+              id="penalty-reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Misconduct during CodeStorm finals"
+              className={cn(inputClass, "mt-1.5")}
+            />
+          </div>
+        </div>
+
+        {error && (
+          <p role="alert" className="text-[12px] font-medium text-destructive">
+            {error}
+          </p>
+        )}
+        {done && <p className="text-[12px] font-medium text-teal-light">{done}</p>}
+
+        {confirming ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3">
+            <p className="text-[12px] font-medium text-destructive">
+              Remove {Math.abs(Math.trunc(Number(points) || 0))} reputation from {picked?.name}?
+            </p>
+            <button
+              disabled={penalise.isPending}
+              onClick={() => penalise.mutate()}
+              className="rounded-full border border-destructive/50 bg-destructive/20 px-4 py-2 text-[12px] font-bold text-destructive transition-colors hover:bg-destructive/30"
+            >
+              {penalise.isPending ? "Applying…" : "Yes, apply penalty"}
+            </button>
+            <button onClick={() => setConfirming(false)} className={ghostBtn}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => {
+              setDone("");
+              if (!picked) {
+                setError("Choose a student first");
+                return;
+              }
+              const n = Math.abs(Math.trunc(Number(points)));
+              if (!Number.isFinite(n) || n <= 0) {
+                setError("Enter how much reputation to remove");
+                return;
+              }
+              if (!reason.trim()) {
+                setError("A written reason is required");
+                return;
+              }
+              setError("");
+              setConfirming(true);
+            }}
+            className="rounded-full border border-destructive/50 bg-destructive/15 px-5 py-2.5 font-display text-[13px] font-bold text-destructive transition-colors hover:bg-destructive/25"
+          >
+            Review penalty
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+

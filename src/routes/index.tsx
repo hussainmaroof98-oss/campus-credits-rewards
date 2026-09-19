@@ -1,13 +1,30 @@
+// -----------------------------------------------------------------------------
+// CREDITS vs REPUTATION — the core rule of the app
+// Reputation = standing (achievements ledger only) → drives every rank.
+// Credits    = spendable currency (point ledger only) → spent on rewards.
+// Spending credits never lowers standing; a penalty never removes credits.
+// -----------------------------------------------------------------------------
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Gift, CalendarDays, Trophy, Droplets, GraduationCap, LogOut, Crown } from "lucide-react";
+import {
+  Gift,
+  CalendarDays,
+  Trophy,
+  Droplets,
+  GraduationCap,
+  LogOut,
+  Crown,
+  ScrollText,
+} from "lucide-react";
 
 import avatar from "@/assets/avatar-aarav.jpg";
 import { CampusIdCard } from "@/components/CampusIdCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { supabase } from "@/integrations/supabase/client";
 import { clearSession, loadSession, type StudentSession } from "@/lib/session";
+
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -33,8 +50,10 @@ const actions = [
   { label: "Redeem", icon: Gift, to: "/redeem" as const },
   { label: "Events", icon: CalendarDays, to: "/events" as const },
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
+  { label: "Achievements", icon: ScrollText, to: "/profile" as const },
   { label: "Campus Plus", icon: Crown, to: "/campus-plus" as const },
 ];
+
 
 const sourceIcon = {
   academic: GraduationCap,
@@ -168,13 +187,15 @@ function Home() {
               subtitle={
                 student ? `${student.branch.split(" ").pop()}-${student.section}` : "Campus"
               }
-              balance={stats?.credit_balance ?? student?.credit_balance ?? 0}
+              reputation={stats?.reputation ?? 0}
+              credits={stats?.credit_balance ?? student?.credit_balance ?? 0}
               delta={weekDelta}
               personalRank={
                 stats ? `#${stats.personal_rank} / ${stats.total_students}` : "—"
               }
               classRank={stats ? `#${stats.class_rank} / ${stats.class_size}` : "—"}
             />
+
           </section>
 
           <section className="mt-5 flex items-center gap-4 rounded-3xl border border-border bg-surface/80 p-4">
@@ -200,7 +221,7 @@ function Home() {
           </section>
 
 
-          <section className="mt-5 grid grid-cols-4 gap-2">
+          <section className="mt-5 grid grid-cols-3 gap-2">
             {actions.map(({ label, icon: Icon, to }) => (
               <button
                 key={label}
