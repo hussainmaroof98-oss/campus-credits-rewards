@@ -22,6 +22,13 @@
       "when": 1789818144745,
       "tag": "0002_vouchers_stock_class_rewards",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789834239783,
+      "tag": "0003_functional_campus_plus",
+      "breakpoints": true
     }
   ]
 }
