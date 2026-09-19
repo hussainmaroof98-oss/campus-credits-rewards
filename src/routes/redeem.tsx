@@ -125,15 +125,17 @@ function RedeemPage() {
   });
 
   const { data: discount } = useQuery({
-    queryKey: ["class-discount", student?.id],
+    queryKey: ["store-discount", student?.id],
     enabled: Boolean(student?.id),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("student_class_discount", {
+      const { data, error } = await supabase.rpc("student_store_discount", {
         p_student_id: student!.id,
       });
       if (error) throw error;
       return (data?.[0] ?? null) as {
-        discount_percent: number;
+        class_discount_percent: number;
+        plus_discount_percent: number;
+        total_discount_percent: number;
         expires_at: string | null;
         class_rank: number | null;
         class_label: string | null;
@@ -141,7 +143,7 @@ function RedeemPage() {
     },
   });
 
-  const percent = discount?.discount_percent ?? 0;
+  const percent = discount?.total_discount_percent ?? 0;
   const daysLeft = discount?.expires_at
     ? Math.max(
         0,
@@ -244,10 +246,9 @@ function RedeemPage() {
                 <Sparkles className="h-4 w-4" />
               </span>
               <p className="text-[12px] leading-relaxed text-foreground">
-                Your class ranked{" "}
-                <span className="font-bold">#{discount?.class_rank ?? "—"}</span> this term —{" "}
-                <span className="font-bold">{percent}% off</span> all rewards, {daysLeft} day
-                {daysLeft === 1 ? "" : "s"} left.
+                 <span className="font-bold">{percent}% off</span> all rewards
+                 {(discount?.class_discount_percent ?? 0) > 0 ? ` · ${discount?.class_discount_percent}% class reward${daysLeft ? ` for ${daysLeft} more day${daysLeft === 1 ? "" : "s"}` : ""}` : ""}
+                 {(discount?.plus_discount_percent ?? 0) > 0 ? ` · ${discount?.plus_discount_percent}% Campus Plus` : ""}.
               </p>
             </section>
           )}
@@ -257,7 +258,7 @@ function RedeemPage() {
           </h2>
 
           {isLoading ? (
-            <div className="mt-3 grid grid-cols-2 gap-2.5">
+            <div className="mt-3 grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
@@ -266,7 +267,7 @@ function RedeemPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-3 grid grid-cols-2 gap-2.5">
+            <div className="mt-3 grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2">
               {(rewards ?? []).map((reward, i) => {
                 const Icon = iconMap[reward.icon] ?? Gift;
                 const price = priceFor(reward.points_cost);

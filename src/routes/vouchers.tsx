@@ -134,7 +134,7 @@ function VouchersPage() {
 
                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-border bg-secondary/40 px-3 py-2.5">
                     <TicketCheck className="h-4 w-4 shrink-0 text-primary" />
-                    <span className="font-mono text-[15px] font-bold tracking-[0.12em] text-foreground">
+                    <span className="min-w-0 break-all font-mono text-[14px] font-bold tracking-[0.08em] text-foreground sm:text-[15px] sm:tracking-[0.12em]">
                       {v.voucher_code ?? "—"}
                     </span>
                   </div>

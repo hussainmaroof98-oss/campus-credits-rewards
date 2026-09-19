@@ -18,11 +18,13 @@ import {
   Crown,
   ScrollText,
   TicketCheck,
+  BrainCircuit,
+  Sparkles,
 
 } from "lucide-react";
 
 import avatar from "@/assets/avatar-aarav.jpg";
-import { CampusIdCard } from "@/components/CampusIdCard";
+import { CampusIdCard, type CardSkin } from "@/components/CampusIdCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { supabase } from "@/integrations/supabase/client";
 import { clearSession, loadSession, type StudentSession } from "@/lib/session";
@@ -57,6 +59,8 @@ const actions = [
   { label: "Leaderboard", icon: Trophy, to: "/leaderboard" as const },
   { label: "Achievements", icon: ScrollText, to: "/profile" as const },
   { label: "Campus Plus", icon: Crown, to: "/campus-plus" as const },
+  { label: "Ask", icon: BrainCircuit, to: "/ask" as const },
+  { label: "Portfolio", icon: Sparkles, to: "/portfolio" as const },
 ];
 
 
@@ -116,15 +120,15 @@ function Home() {
     },
   });
 
-  const { data: isPlus } = useQuery({
-    queryKey: ["campus-plus", student?.id],
+  const { data: plusProfile } = useQuery({
+    queryKey: ["plus-profile", student?.id],
     enabled: Boolean(student?.id),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("student_campus_plus_status", {
+      const { data, error } = await supabase.rpc("student_plus_profile", {
         p_student_id: student!.id,
       });
       if (error) throw error;
-      return Boolean(data?.[0]?.is_campus_plus);
+      return data?.[0] ?? null;
     },
   });
 
@@ -136,6 +140,8 @@ function Home() {
   const firstName = (student?.name || "").split(" ")[0] || "there";
   const classScore = Number(stats?.normalized_score ?? 0);
   const weekDelta = stats?.week_delta ?? 0;
+  const isPlus = Boolean(plusProfile?.is_campus_plus);
+  const cardSkin = (isPlus ? plusProfile?.card_skin : "navy") as CardSkin;
   const ordinal = (n: number) => {
     const s = ["th", "st", "nd", "rd"];
     const v = n % 100;
@@ -200,6 +206,7 @@ function Home() {
                 stats ? `#${stats.personal_rank} / ${stats.total_students}` : "—"
               }
               classRank={stats ? `#${stats.class_rank} / ${stats.class_size}` : "—"}
+              skin={cardSkin}
             />
 
           </section>

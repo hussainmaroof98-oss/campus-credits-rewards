@@ -580,7 +580,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                 ))}
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-3 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
 
                 <input
                   aria-label={`Points for ${r.student_name}`}
@@ -593,7 +593,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                     }))
                   }
                   placeholder="Points"
-                  className={cn(inputClass, "w-28 px-3 py-2")}
+                  className={cn(inputClass, "w-full px-3 py-2 sm:w-28")}
                 />
                 <input
                   aria-label={`Reason for ${r.student_name}`}
@@ -605,7 +605,7 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                     }))
                   }
                   placeholder={`e.g. ${event.title} — participation`}
-                  className={cn(inputClass, "min-w-[12rem] flex-1 px-3 py-2")}
+                  className={cn(inputClass, "w-full flex-1 px-3 py-2 sm:min-w-[12rem]")}
                 />
                 <button
                   disabled={award.isPending}
