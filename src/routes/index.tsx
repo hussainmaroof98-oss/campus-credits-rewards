@@ -14,7 +14,6 @@ import {
   Trophy,
   Droplets,
   GraduationCap,
-  LogOut,
   Crown,
   ScrollText,
   TicketCheck,
@@ -27,7 +26,7 @@ import avatar from "@/assets/avatar-aarav.jpg";
 import { CampusIdCard, type CardSkin } from "@/components/CampusIdCard";
 import { ProgressRing } from "@/components/ProgressRing";
 import { supabase } from "@/integrations/supabase/client";
-import { clearSession, loadSession, type StudentSession } from "@/lib/session";
+import { loadSession, type StudentSession } from "@/lib/session";
 
 
 export const Route = createFileRoute("/")({
@@ -133,11 +132,6 @@ function Home() {
     },
   });
 
-  function signOut() {
-    clearSession();
-    navigate({ to: "/login", replace: true });
-  }
-
   const firstName = (student?.name || "").split(" ")[0] || "there";
   const classScore = Number(stats?.normalized_score ?? 0);
   const weekDelta = stats?.week_delta ?? 0;
@@ -160,13 +154,6 @@ function Home() {
           <header className="flex items-center justify-between">
             <span className="font-display text-xl font-bold tracking-tight">CampCredit</span>
             <div className="flex items-center gap-2">
-              <button
-                onClick={signOut}
-                aria-label="Sign out"
-                className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface/80 text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
               <img
                 src={avatar}
                 alt={`${student?.name ?? "Student"} profile`}

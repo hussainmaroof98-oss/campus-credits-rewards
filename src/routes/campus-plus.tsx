@@ -246,14 +246,6 @@ function CampusPlusPage() {
                 <p className="mt-1 text-[11px] text-muted-foreground">
                    Your multiplier, store discount, portfolio, and card skins are active.
                 </p>
-                {/* PLACEHOLDER: real subscription management will open the
-                    RevenueCat / store-managed subscription screen natively. */}
-                <button
-                  onClick={() => setToast("Subscription management arrives with the native app.")}
-                  className="mt-3 font-display text-[12px] font-semibold text-primary underline underline-offset-4 transition-opacity hover:opacity-80"
-                >
-                  Manage subscription
-                </button>
               </div>
             ) : (
               <>
