@@ -1,3 +1,13 @@
+// -----------------------------------------------------------------------------
+// CREDITS vs REPUTATION — the core rule of the app
+// -----------------------------------------------------------------------------
+// Reputation = your standing. Earned only through the achievement ledger
+//   (academics, events, team bonuses, penalties). Drives personal rank,
+//   class rank and the course-wide class score. It can NEVER be spent.
+// Credits    = spendable currency. Earned through the point ledger and spent
+//   on rewards. Spending credits never changes your standing.
+// -----------------------------------------------------------------------------
+
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Cpu } from "lucide-react";
 
@@ -30,19 +40,21 @@ function StatChip({ label, value }: { label: string; value: string }) {
 export function CampusIdCard({
   name,
   subtitle,
-  balance: target,
+  reputation: target,
+  credits,
   delta,
   personalRank,
   classRank,
 }: {
   name: string;
   subtitle: string;
-  balance: number;
+  reputation: number;
+  credits: number;
   delta: number;
   personalRank: string;
   classRank: string;
 }) {
-  const balance = useCountUp(target);
+  const reputation = useCountUp(target);
 
   return (
     <div className="relative overflow-hidden rounded-[28px] card-hero p-5 pb-4">
@@ -65,22 +77,30 @@ export function CampusIdCard({
         </div>
       </div>
 
+      {/* Primary number = reputation (your standing, what rank is based on) */}
       <div className="relative mt-7">
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
-          Credit balance
+          Reputation
         </p>
         <div className="mt-1 flex items-end gap-3">
           <span className="font-mono text-[44px] font-bold leading-none tabular-nums text-cream drop-shadow-[0_1px_4px_rgba(30,40,55,0.22)]">
-            {balance.toLocaleString("en-IN")}
+            {reputation.toLocaleString("en-IN")}
           </span>
           <span className="mb-1.5 inline-flex items-center gap-0.5 rounded-full bg-white/22 px-2 py-1 text-[11px] font-semibold text-white">
             <ArrowUpRight className="h-3 w-3" />
             {delta > 0 ? `+${delta}` : delta} this week
           </span>
         </div>
+        {/* Secondary, clearly separate: spendable credits */}
+        <p className="mt-2 text-[12px] font-medium text-white/80">
+          Spendable credits ·{" "}
+          <span className="font-mono font-bold text-cream">
+            {credits.toLocaleString("en-IN")}
+          </span>
+        </p>
       </div>
 
-      <div className="relative mt-6 flex gap-2.5">
+      <div className="relative mt-5 flex gap-2.5">
         <StatChip label="Personal rank" value={personalRank} />
         <StatChip label="Class rank" value={classRank} />
       </div>
