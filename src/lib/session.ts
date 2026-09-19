@@ -18,18 +18,31 @@ export type StudentSession = {
 
 const KEY = "campcredit.student";
 
+// Temporary preview mode: the student experience opens directly as Aarav.
+// Restore real authentication here when university sign-in is ready.
+export const DEMO_STUDENT: StudentSession = {
+  id: "bc0da362-a22f-4bac-8974-2f0ebee9ea8c",
+  enrollment_number: "2023CSE042",
+  name: "Aarav Mehta",
+  section: "A",
+  branch: "BTech CSE",
+  year: 2,
+  credit_balance: 0,
+  personal_rank: null,
+};
+
 export function saveSession(student: StudentSession) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(KEY, JSON.stringify(student));
 }
 
 export function loadSession(): StudentSession | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") return DEMO_STUDENT;
   try {
     const raw = window.localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as StudentSession) : null;
+    return raw ? (JSON.parse(raw) as StudentSession) : DEMO_STUDENT;
   } catch {
-    return null;
+    return DEMO_STUDENT;
   }
 }
 
