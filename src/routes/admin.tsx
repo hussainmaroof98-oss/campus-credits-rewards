@@ -1216,6 +1216,27 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
     },
   });
 
+  // Author-scoped: the database only returns penalties this staff member applied.
+  const { data: myPenalties, refetch: refetchPenalties } = useQuery({
+    queryKey: ["staff-my-penalties", staff.id],
+    queryFn: async () => {
+      const { data, error: rpcError } = await supabase.rpc("staff_my_penalties", {
+        p_staff_id: staff.id,
+      });
+      if (rpcError) throw rpcError;
+      return (data ?? []) as {
+        id: string;
+        student_name: string;
+        enrollment_number: string;
+        points: number;
+        citation: string;
+        created_at: string;
+      }[];
+    },
+  });
+
+
+
   const penalise = useMutation({
     mutationFn: async () => {
       const { error: rpcError } = await supabase.rpc("apply_penalty", {
