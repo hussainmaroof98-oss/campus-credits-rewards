@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+// REDEEM — instant vouchers, no approval queue.
+// Spending uses CREDITS only (point_ledger). Reputation/standing is untouched.
+// Stock is held PER CLASS: another section selling out never blocks you.
+// A top-ranked class may also carry an active store discount, applied at
+// checkout by redeem_reward() — the prices below mirror that same maths.
+// -----------------------------------------------------------------------------
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -11,7 +19,9 @@ import {
   Gift,
   Pencil,
   Shirt,
+  Sparkles,
   Ticket,
+  TicketCheck,
   Utensils,
 } from "lucide-react";
 
@@ -33,7 +43,7 @@ export const Route = createFileRoute("/redeem")({
       { property: "og:title", content: "Redeem Credits — CampCredit" },
       {
         property: "og:description",
-        content: "Turn your campus credits into real rewards.",
+        content: "Turn your campus credits into instant vouchers.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -47,14 +57,7 @@ type Reward = {
   description: string;
   points_cost: number;
   icon: string;
-};
-
-type Redemption = {
-  id: string;
-  reward_name: string;
-  points_cost: number;
-  status: string;
-  created_at: string;
+  uses_label: string;
 };
 
 const iconMap: Record<string, typeof Gift> = {
@@ -68,14 +71,6 @@ const iconMap: Record<string, typeof Gift> = {
   briefcase: Briefcase,
   gift: Gift,
 };
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function RedeemPage() {
   const navigate = useNavigate();
@@ -94,7 +89,7 @@ function RedeemPage() {
 
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3200);
+    const t = setTimeout(() => setToast(null), 4200);
     return () => clearTimeout(t);
   }, [toast]);
 
@@ -112,12 +107,55 @@ function RedeemPage() {
 
   const balance = stats?.credit_balance ?? 0;
 
+  // The student's own class — needed for per-class stock and class discounts.
+  const { data: myClass } = useQuery({
+    queryKey: ["my-class", student?.id],
+    enabled: Boolean(student),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("classes")
+        .select("id,branch,section")
+        .eq("branch", student!.branch)
+        .eq("section", student!.section)
+        .eq("year", student!.year)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: discount } = useQuery({
+    queryKey: ["class-discount", student?.id],
+    enabled: Boolean(student?.id),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("student_class_discount", {
+        p_student_id: student!.id,
+      });
+      if (error) throw error;
+      return (data?.[0] ?? null) as {
+        discount_percent: number;
+        expires_at: string | null;
+        class_rank: number | null;
+        class_label: string | null;
+      } | null;
+    },
+  });
+
+  const percent = discount?.discount_percent ?? 0;
+  const daysLeft = discount?.expires_at
+    ? Math.max(
+        0,
+        Math.ceil((new Date(discount.expires_at).getTime() - Date.now()) / 86_400_000),
+      )
+    : 0;
+  const priceFor = (cost: number) => Math.max(0, Math.ceil((cost * (100 - percent)) / 100));
+
   const { data: rewards, isLoading } = useQuery({
     queryKey: ["rewards"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rewards")
-        .select("id,name,description,points_cost,icon")
+        .select("id,name,description,points_cost,icon,uses_label")
         .eq("active", true)
         .order("points_cost", { ascending: true });
       if (error) throw error;
@@ -125,15 +163,18 @@ function RedeemPage() {
     },
   });
 
-  const { data: redemptions } = useQuery({
-    queryKey: ["my-redemptions", student?.id],
-    enabled: Boolean(student?.id),
+  const { data: stock } = useQuery({
+    queryKey: ["reward-stock", myClass?.id],
+    enabled: Boolean(myClass?.id),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("my_redemptions", {
-        p_student_id: student!.id,
-      });
+      const { data, error } = await supabase
+        .from("reward_stock")
+        .select("reward_id,remaining_stock")
+        .eq("class_id", myClass!.id);
       if (error) throw error;
-      return (data ?? []) as Redemption[];
+      const map: Record<string, number | null> = {};
+      for (const row of data ?? []) map[row.reward_id] = row.remaining_stock;
+      return map;
     },
   });
 
@@ -150,7 +191,8 @@ function RedeemPage() {
       setToast({ ok: Boolean(result?.ok), message: result?.message ?? "Something went wrong" });
       if (result?.ok) {
         queryClient.invalidateQueries({ queryKey: ["student-stats", student?.id] });
-        queryClient.invalidateQueries({ queryKey: ["my-redemptions", student?.id] });
+        queryClient.invalidateQueries({ queryKey: ["my-vouchers", student?.id] });
+        queryClient.invalidateQueries({ queryKey: ["reward-stock", myClass?.id] });
         queryClient.invalidateQueries({ queryKey: ["ledger", student?.id] });
       }
     },
@@ -172,10 +214,16 @@ function RedeemPage() {
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <div>
+            <div className="flex-1">
               <h1 className="font-display text-xl font-bold tracking-tight">Redeem</h1>
-              <p className="text-xs text-muted-foreground">Turn credits into real perks</p>
+              <p className="text-xs text-muted-foreground">Credits in, voucher out — instantly</p>
             </div>
+            <button
+              onClick={() => navigate({ to: "/vouchers" })}
+              className="flex items-center gap-1.5 rounded-full border border-border bg-surface/80 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
+            >
+              <TicketCheck className="h-3.5 w-3.5" /> Vouchers
+            </button>
           </header>
 
           <section className="animate-rise mt-5 rounded-3xl border border-border bg-surface/70 p-4">
@@ -189,6 +237,20 @@ function RedeemPage() {
               </span>
             </p>
           </section>
+
+          {percent > 0 && (
+            <section className="animate-rise mt-3 flex items-start gap-2.5 rounded-2xl border border-primary/45 bg-accent/40 p-3.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/25 text-primary">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <p className="text-[12px] leading-relaxed text-foreground">
+                Your class ranked{" "}
+                <span className="font-bold">#{discount?.class_rank ?? "—"}</span> this term —{" "}
+                <span className="font-bold">{percent}% off</span> all rewards, {daysLeft} day
+                {daysLeft === 1 ? "" : "s"} left.
+              </p>
+            </section>
+          )}
 
           <h2 className="mt-7 font-display text-sm font-bold uppercase tracking-[0.16em] text-muted-foreground">
             Reward catalog
@@ -207,14 +269,18 @@ function RedeemPage() {
             <div className="mt-3 grid grid-cols-2 gap-2.5">
               {(rewards ?? []).map((reward, i) => {
                 const Icon = iconMap[reward.icon] ?? Gift;
-                const affordable = balance >= reward.points_cost;
+                const price = priceFor(reward.points_cost);
+                const remaining = stock?.[reward.id];
+                const soldOut = remaining !== undefined && remaining !== null && remaining <= 0;
+                const affordable = balance >= price;
+                const canBuy = affordable && !soldOut;
                 const pendingThis = redeem.isPending && redeem.variables?.id === reward.id;
                 return (
                   <article
                     key={reward.id}
                     className={cn(
                       "animate-rise flex flex-col rounded-2xl border bg-surface/70 p-3.5 transition-all duration-200",
-                      affordable
+                      canBuy
                         ? "border-border hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]"
                         : "border-border/60 opacity-70",
                     )}
@@ -223,9 +289,7 @@ function RedeemPage() {
                     <span
                       className={cn(
                         "grid h-9 w-9 place-items-center rounded-full",
-                        affordable
-                          ? "bg-accent/50 text-primary"
-                          : "bg-secondary/50 text-muted-foreground",
+                        canBuy ? "bg-accent/50 text-primary" : "bg-secondary/50 text-muted-foreground",
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -236,14 +300,28 @@ function RedeemPage() {
                     <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
                       {reward.description}
                     </p>
+                    {/* What one redemption actually covers */}
+                    <p className="mt-1.5 inline-flex w-fit rounded-full border border-border bg-secondary/50 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      {reward.uses_label}
+                    </p>
                     <p className="mt-2 font-mono text-sm font-bold text-foreground">
-                      {reward.points_cost.toLocaleString("en-IN")}
+                      {price.toLocaleString("en-IN")}
+                      {percent > 0 && (
+                        <span className="ml-1.5 font-mono text-[11px] font-medium text-muted-foreground line-through">
+                          {reward.points_cost.toLocaleString("en-IN")}
+                        </span>
+                      )}
                       <span className="ml-1 font-display text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         pts
                       </span>
                     </p>
+                    {remaining !== undefined && remaining !== null && !soldOut && (
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {remaining} left for your class
+                      </p>
+                    )}
                     <div className="mt-auto pt-2.5">
-                      {affordable ? (
+                      {canBuy ? (
                         <button
                           disabled={redeem.isPending}
                           onClick={() => redeem.mutate(reward)}
@@ -260,7 +338,9 @@ function RedeemPage() {
                             Redeem
                           </button>
                           <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
-                            Not enough credits · {(reward.points_cost - balance).toLocaleString("en-IN")} short
+                            {soldOut
+                              ? "Sold out for your class"
+                              : `Not enough credits · ${(price - balance).toLocaleString("en-IN")} short`}
                           </p>
                         </>
                       )}
@@ -271,42 +351,18 @@ function RedeemPage() {
             </div>
           )}
 
-          <h2 className="mt-8 font-display text-sm font-bold uppercase tracking-[0.16em] text-muted-foreground">
-            My redemptions
-          </h2>
-          <section className="mt-3 space-y-2.5">
-            {(redemptions ?? []).map((r, i) => (
-              <article
-                key={r.id}
-                className="animate-rise flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface/70 p-3.5"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <div className="min-w-0">
-                  <h3 className="truncate font-display text-[13px] font-bold leading-tight">
-                    {r.reward_name}
-                  </h3>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {formatDateTime(r.created_at)} · {r.points_cost.toLocaleString("en-IN")} pts
-                  </p>
-                </div>
-                <span
-                  className={cn(
-                    "shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium capitalize",
-                    r.status === "fulfilled"
-                      ? "bg-success/20 text-success"
-                      : "bg-accent/60 text-primary",
-                  )}
-                >
-                  {r.status}
-                </span>
-              </article>
-            ))}
-            {(redemptions ?? []).length === 0 && (
-              <p className="rounded-2xl border border-border bg-surface/60 p-6 text-center text-sm text-muted-foreground">
-                You haven't redeemed anything yet.
-              </p>
-            )}
-          </section>
+          <button
+            onClick={() => navigate({ to: "/vouchers" })}
+            className="mt-7 flex w-full items-center justify-between rounded-2xl border border-border bg-surface/70 px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45"
+          >
+            <span>
+              <span className="block font-display text-[13px] font-bold">My vouchers</span>
+              <span className="block text-[11px] text-muted-foreground">
+                Your codes and what you&apos;ve already used
+              </span>
+            </span>
+            <TicketCheck className="h-4 w-4 text-primary" />
+          </button>
         </div>
 
         {toast && (
