@@ -938,7 +938,7 @@ function TeamBonusPanel({
         p_event_id: event.id,
         p_student_ids: picked,
         p_reputation_each: Math.trunc(Number(each)),
-        p_mvp_student_id: mvp || null,
+        ...(mvp ? { p_mvp_student_id: mvp } : {}),
         p_mvp_bonus: mvp ? Math.trunc(Number(mvpBonus) || 0) : 0,
       });
       if (rpcError) throw rpcError;
