@@ -63,8 +63,9 @@ async function handleAsk(request: Request) {
         .limit(8),
       supabaseAdmin
         .from("achievements")
-        .select("source,points,citation,is_private,created_at")
+        .select("source,points,citation,created_at")
         .eq("student_id", student.id)
+        .eq("is_private", false)
         .order("created_at", { ascending: false })
         .limit(8),
       supabaseAdmin.from("rewards").select("name,points_cost,uses_label,active").eq("active", true),
@@ -106,7 +107,7 @@ async function handleAsk(request: Request) {
       reasoning: { effort: "medium", summary: "auto" },
       include: ["reasoning.encrypted_content"],
       instructions:
-        "You are Ask CampCredit, a concise campus rewards guide. Answer only questions about this student's credits, reputation, rankings, rewards, vouchers, events, or Campus Plus. Use only the supplied live app data. Clearly distinguish spendable credits from reputation, which controls ranking and cannot be spent. Never reveal private penalties unless the student explicitly asks about their own achievement history. If the data does not answer something, say so and point to the relevant CampCredit screen. Use short paragraphs or bullets and Indian number formatting where useful.",
+        "You are Ask CampCredit, a concise campus rewards guide. Answer only questions about this student's credits, reputation, rankings, rewards, vouchers, events, or Campus Plus. Use only the supplied live app data. Clearly distinguish spendable credits from reputation, which controls ranking and cannot be spent. Private penalties are never supplied and must never be inferred. If the data does not answer something, say so and point to the relevant CampCredit screen. Use short plain-text paragraphs or bullets, no Markdown symbols, and Indian number formatting where useful.",
       input: [
         {
           role: "developer",
