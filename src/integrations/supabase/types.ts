@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          citation: string
+          created_at: string
+          id: string
+          is_private: boolean
+          points: number
+          source: string
+          student_id: string
+        }
+        Insert: {
+          citation: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          points: number
+          source: string
+          student_id: string
+        }
+        Update: {
+          citation?: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          points?: number
+          source?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classes: {
         Row: {
           branch: string
@@ -311,11 +349,14 @@ export type Database = {
           enrollment_number: string
           id: string
           is_campus_plus: boolean
+          last_checkpoint_rank: number | null
           name: string
           password_hash: string
           personal_rank: number | null
+          reputation: number
           section: string
           updated_at: string
+          visibility: string
           year: number
         }
         Insert: {
@@ -325,11 +366,14 @@ export type Database = {
           enrollment_number: string
           id?: string
           is_campus_plus?: boolean
+          last_checkpoint_rank?: number | null
           name: string
           password_hash: string
           personal_rank?: number | null
+          reputation?: number
           section: string
           updated_at?: string
+          visibility?: string
           year?: number
         }
         Update: {
@@ -339,11 +383,14 @@ export type Database = {
           enrollment_number?: string
           id?: string
           is_campus_plus?: boolean
+          last_checkpoint_rank?: number | null
           name?: string
           password_hash?: string
           personal_rank?: number | null
+          reputation?: number
           section?: string
           updated_at?: string
+          visibility?: string
           year?: number
         }
         Relationships: []
@@ -353,6 +400,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_penalty: {
+        Args: {
+          p_points: number
+          p_reason: string
+          p_staff_id: string
+          p_student_id: string
+        }
+        Returns: {
+          message: string
+          ok: boolean
+        }[]
+      }
+      award_team_bonus: {
+        Args: {
+          p_event_id: string
+          p_mvp_bonus?: number
+          p_mvp_student_id?: string
+          p_reputation_each: number
+          p_staff_id: string
+          p_student_ids: string[]
+        }
+        Returns: {
+          awarded: number
+        }[]
+      }
       class_leaderboard: {
         Args: never
         Returns: {
@@ -372,6 +444,17 @@ export type Database = {
           name: string
           student_id: string
           team_name: string
+        }[]
+      }
+      my_achievements: {
+        Args: { p_student_id: string }
+        Returns: {
+          citation: string
+          created_at: string
+          id: string
+          is_private: boolean
+          points: number
+          source: string
         }[]
       }
       my_event_registrations: {
@@ -417,6 +500,13 @@ export type Database = {
           reg_status: string
           reg_student_id: string
           reg_team_name: string
+        }[]
+      }
+      run_checkpoint_bonuses: {
+        Args: { p_staff_id: string }
+        Returns: {
+          growth_bonuses: number
+          position_bonuses: number
         }[]
       }
       staff_approve_event: {
@@ -510,7 +600,9 @@ export type Database = {
           id: string
           name: string
           personal_rank: number
+          reputation: number
           section: string
+          visibility: string
           year: number
         }[]
       }
@@ -547,6 +639,12 @@ export type Database = {
           year: number
         }[]
       }
+      student_set_visibility: {
+        Args: { p_student_id: string; p_visibility: string }
+        Returns: {
+          visibility: string
+        }[]
+      }
       student_stats: {
         Args: { p_student_id: string }
         Returns: {
@@ -559,7 +657,9 @@ export type Database = {
           normalized_score: number
           personal_rank: number
           points_behind_next_class: number
+          reputation: number
           total_students: number
+          visibility: string
           week_delta: number
         }[]
       }
