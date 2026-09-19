@@ -612,6 +612,11 @@ function RegistrationsPanel({ staff, event }: { staff: StaffSession; event: Even
                       setError("Enter a non-zero number of points");
                       return;
                     }
+                    if (Math.abs(points) > 400) {
+                      setError("Event awards are capped at 400 points");
+                      return;
+                    }
+
                     award.mutate({
                       studentId: r.student_id,
                       points: Math.trunc(points),
@@ -782,24 +787,30 @@ function CreateEventForm({ staff, onCreated }: { staff: StaffSession; onCreated:
   );
 }
 
-function RedemptionsPanel({ staff }: { staff: StaffSession }) {
+/* -------------------------------------------------------------------------- */
+/* Voucher desk — redemptions are instant now, so staff only mark codes used.  */
+/* -------------------------------------------------------------------------- */
+
+function VouchersPanel({ staff }: { staff: StaffSession }) {
   const queryClient = useQueryClient();
+  const [query, setQuery] = useState("");
   const [error, setError] = useState("");
 
   const { data: rows, isLoading } = useQuery({
-    queryKey: ["staff-redemptions", staff.id],
+    queryKey: ["staff-vouchers", staff.id, query],
     queryFn: async () => {
-      const { data, error: rpcError } = await supabase.rpc("staff_pending_redemptions", {
+      const { data, error: rpcError } = await supabase.rpc("staff_vouchers", {
         p_staff_id: staff.id,
+        p_query: query.trim(),
       });
       if (rpcError) throw rpcError;
-      return (data ?? []) as StaffRedemption[];
+      return (data ?? []) as StaffVoucher[];
     },
   });
 
-  const fulfill = useMutation({
+  const markUsed = useMutation({
     mutationFn: async (redemptionId: string) => {
-      const { error: rpcError } = await supabase.rpc("staff_fulfill_redemption", {
+      const { error: rpcError } = await supabase.rpc("staff_mark_voucher_used", {
         p_staff_id: staff.id,
         p_redemption_id: redemptionId,
       });
@@ -807,18 +818,26 @@ function RedemptionsPanel({ staff }: { staff: StaffSession }) {
     },
     onSuccess: () => {
       setError("");
-      queryClient.invalidateQueries({ queryKey: ["staff-redemptions", staff.id] });
+      queryClient.invalidateQueries({ queryKey: ["staff-vouchers", staff.id] });
     },
-    onError: () => setError("Could not update that redemption. Please try again."),
+    onError: () => setError("Could not update that voucher. Please try again."),
   });
 
-  const pending = (rows ?? []).filter((r) => r.status === "pending");
-  const done = (rows ?? []).filter((r) => r.status !== "pending");
-
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading redemptions…</p>;
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      <div className="max-w-xl">
+        <label htmlFor="voucher-search" className={labelClass}>
+          Find a voucher
+        </label>
+        <input
+          id="voucher-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Voucher code (CC-XXXX-XXXX) or student name"
+          className={cn(inputClass, "mt-1.5")}
+        />
+      </div>
+
       {error && (
         <p
           role="alert"
@@ -828,66 +847,62 @@ function RedemptionsPanel({ staff }: { staff: StaffSession }) {
         </p>
       )}
 
-      <div>
-        <h2 className={labelClass}>Pending redemptions ({pending.length})</h2>
-        <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {pending.map((r, i) => (
+      {isLoading && <p className="text-sm text-muted-foreground">Loading vouchers…</p>}
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {(rows ?? []).map((r, i) => {
+          const used = r.status === "used";
+          return (
             <article
               key={r.id}
-              className="animate-rise flex flex-col rounded-2xl border border-border bg-surface/70 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-[var(--shadow-lift)]"
-              style={{ animationDelay: `${i * 45}ms` }}
+              style={{ animationDelay: `${i * 40}ms` }}
+              className={cn(
+                "animate-rise flex flex-col rounded-2xl border p-5",
+                used ? "border-border/60 bg-surface/50" : "border-border bg-surface/70",
+              )}
             >
-              <h3 className="font-display text-base font-bold leading-tight">{r.reward_name}</h3>
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="font-display text-base font-bold leading-tight">{r.reward_name}</h3>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium capitalize",
+                    used ? "bg-success/20 text-success" : "bg-accent/60 text-primary",
+                  )}
+                >
+                  {r.status}
+                </span>
+              </div>
               <p className="mt-1 text-[13px] text-muted-foreground">
                 {r.student_name} · {r.enrollment_number}
               </p>
               <p className="mt-1 text-[12px] text-muted-foreground">
                 {formatDate(r.created_at.slice(0, 10))} · {r.points_cost.toLocaleString("en-IN")} pts
               </p>
-              <div className="mt-4 pt-1">
-                <button
-                  disabled={fulfill.isPending}
-                  onClick={() => fulfill.mutate(r.id)}
-                  className={cn(primaryBtn, "flex items-center gap-1.5 px-4 py-2 text-[12px]")}
-                >
-                  <Check className="h-3.5 w-3.5" /> Mark Fulfilled
-                </button>
-              </div>
+              <p className="mt-3 rounded-xl border border-dashed border-border bg-secondary/40 px-3 py-2 font-mono text-[14px] font-bold tracking-[0.12em]">
+                {r.voucher_code ?? "—"}
+              </p>
+              {!used && (
+                <div className="mt-4 pt-1">
+                  <button
+                    disabled={markUsed.isPending}
+                    onClick={() => markUsed.mutate(r.id)}
+                    className={cn(primaryBtn, "flex items-center gap-1.5 px-4 py-2 text-[12px]")}
+                  >
+                    <Check className="h-3.5 w-3.5" /> Mark Used
+                  </button>
+                </div>
+              )}
             </article>
-          ))}
-          {pending.length === 0 && (
-            <p className="text-sm text-muted-foreground">No pending redemptions right now.</p>
-          )}
-        </div>
+          );
+        })}
+        {!isLoading && (rows ?? []).length === 0 && (
+          <p className="text-sm text-muted-foreground">No vouchers match that search.</p>
+        )}
       </div>
-
-      {done.length > 0 && (
-        <div>
-          <h2 className={labelClass}>Fulfilled ({done.length})</h2>
-          <div className="mt-3 space-y-2">
-            {done.map((r) => (
-              <div
-                key={r.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface/50 px-5 py-3"
-              >
-                <span className="text-[13px]">
-                  <span className="font-display font-bold">{r.reward_name}</span>
-                  <span className="text-muted-foreground">
-                    {" "}
-                    · {r.student_name} · {formatDate(r.created_at.slice(0, 10))}
-                  </span>
-                </span>
-                <span className="rounded-full bg-success/20 px-2.5 py-0.5 text-[10px] font-medium capitalize text-success">
-                  {r.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Checkpoint bonuses (credits paid out for reputation standing)               */
