@@ -1255,6 +1255,8 @@ function PenaltyPanel({ staff }: { staff: StaffSession }) {
       setReason("");
       setPicked(null);
       setQuery("");
+      refetchPenalties();
+
     },
     onError: () => {
       setConfirming(false);
