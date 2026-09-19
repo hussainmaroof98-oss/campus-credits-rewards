@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Crown, Sparkles, X } from "lucide-react";
+import { ArrowLeft, BriefcaseBusiness, Check, Crown, Palette, Sparkles, X } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import type { CardSkin } from "@/components/CampusIdCard";
 import { supabase } from "@/integrations/supabase/client";
 import { loadSession, type StudentSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -16,12 +18,12 @@ export const Route = createFileRoute("/campus-plus")({
       {
         name: "description",
         content:
-          "Upgrade to Campus Plus for 2x credit cashback, priority event registration, an ad-free app and the AI study planner.",
+          "Get 2x earned credits, a 5% personal store discount, an achievement portfolio, and Digital Campus ID skins.",
       },
       { property: "og:title", content: "Campus Plus — CampCredit membership" },
       {
         property: "og:description",
-        content: "2x cashback, priority events, ad-free and an AI study planner for ₹49/month.",
+        content: "Four real CampCredit benefits: 2x earned credits, store savings, a portfolio, and card skins.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,17 +32,23 @@ export const Route = createFileRoute("/campus-plus")({
 });
 
 const freePerks = [
-  { label: "Standard cashback rate", ok: true },
-  { label: "Standard event access", ok: true },
-  { label: "Ads shown in app", ok: false },
-  { label: "AI study planner", ok: false },
+  { label: "Standard earned credits", ok: true },
+  { label: "Class store discount only", ok: true },
+  { label: "Achievement ledger", ok: true },
+  { label: "Default navy ID card", ok: true },
 ];
 
 const plusPerks = [
-  { label: "2x cashback rate", ok: true },
-  { label: "Priority event registration", ok: true },
-  { label: "Ad-free experience", ok: true },
-  { label: "AI study planner", ok: true },
+  { label: "2x credits on academic and staff awards", ok: true },
+  { label: "Personal 5% store discount, added to class savings", ok: true },
+  { label: "Share-worthy achievement portfolio", ok: true },
+  { label: "Three Digital Campus ID card skins", ok: true },
+];
+
+const skins: Array<{ id: CardSkin; label: string; className: string }> = [
+  { id: "navy", label: "Campus Navy", className: "card-hero" },
+  { id: "aurora", label: "Aurora", className: "card-hero-aurora" },
+  { id: "ember", label: "Ember", className: "card-hero-ember" },
 ];
 
 function CampusPlusPage() {
@@ -64,15 +72,15 @@ function CampusPlusPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const { data: isPlus } = useQuery({
-    queryKey: ["campus-plus", student?.id],
+  const { data: plusProfile } = useQuery({
+    queryKey: ["plus-profile", student?.id],
     enabled: Boolean(student?.id),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("student_campus_plus_status", {
+      const { data, error } = await supabase.rpc("student_plus_profile", {
         p_student_id: student!.id,
       });
       if (error) throw error;
-      return Boolean(data?.[0]?.is_campus_plus);
+      return data?.[0] ?? null;
     },
   });
 
@@ -94,13 +102,32 @@ function CampusPlusPage() {
     onSuccess: (ok) => {
       if (ok) {
         setToast("Welcome to Campus Plus ✨");
-        queryClient.invalidateQueries({ queryKey: ["campus-plus", student?.id] });
+        queryClient.invalidateQueries({ queryKey: ["plus-profile", student?.id] });
       } else {
         setToast("Could not activate Campus Plus. Try again.");
       }
     },
     onError: () => setToast("Could not activate Campus Plus. Try again."),
   });
+
+  const chooseSkin = useMutation({
+    mutationFn: async (skin: CardSkin) => {
+      if (!student) throw new Error("Student session missing");
+      const { error } = await supabase.rpc("student_set_card_skin", {
+        p_student_id: student.id,
+        p_card_skin: skin,
+      });
+      if (error) throw error;
+      return skin;
+    },
+    onSuccess: (skin) => {
+      setToast(`${skins.find((item) => item.id === skin)?.label ?? "Card"} selected`);
+      queryClient.invalidateQueries({ queryKey: ["plus-profile", student?.id] });
+    },
+    onError: () => setToast("Could not change your card skin."),
+  });
+
+  const isPlus = Boolean(plusProfile?.is_campus_plus);
 
   return (
     <main className="flex min-h-screen justify-center bg-black py-0 sm:py-8">
@@ -122,7 +149,7 @@ function CampusPlusPage() {
                 Campus Plus
                 <Crown className="h-4 w-4 text-primary" />
               </h1>
-              <p className="text-xs text-muted-foreground">Earn faster, skip the queue</p>
+              <p className="text-xs text-muted-foreground">More credits, savings, and a portfolio</p>
             </div>
           </header>
 
@@ -191,13 +218,31 @@ function CampusPlusPage() {
           </div>
 
           <section className="mt-7">
+            <div className="flex items-center justify-between gap-3">
+              <div><h2 className="flex items-center gap-2 font-display text-sm font-bold"><Palette className="h-4 w-4 text-primary" />Digital ID skins</h2><p className="mt-1 text-[11px] text-muted-foreground">Your selected look appears on Home.</p></div>
+              {!isPlus && <span className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[10px] text-muted-foreground">Plus only</span>}
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {skins.map((skin) => {
+                const selected = (plusProfile?.card_skin ?? "navy") === skin.id;
+                return <button key={skin.id} disabled={!isPlus || chooseSkin.isPending} onClick={() => chooseSkin.mutate(skin.id)} aria-label={`Use ${skin.label} card skin`} className={cn("rounded-2xl border p-1.5 text-left transition-all", selected ? "border-primary" : "border-border", !isPlus && skin.id !== "navy" && "opacity-45")}><span className={cn("block aspect-[1.55] rounded-xl", skin.className)} /><span className="mt-1.5 block truncate text-center text-[10px] font-medium">{skin.label}</span></button>;
+              })}
+            </div>
+          </section>
+
+          <section className="mt-4 rounded-2xl border border-border bg-surface/70 p-4">
+            <div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-accent/55 text-primary"><BriefcaseBusiness className="h-4 w-4" /></span><div className="min-w-0 flex-1"><h2 className="font-display text-sm font-bold">Achievement Portfolio</h2><p className="text-[11px] text-muted-foreground">A polished record of your public achievements.</p></div></div>
+            <Button variant="outline" onClick={() => navigate({ to: "/portfolio" })} className="mt-3 w-full rounded-full">{isPlus ? "Open my portfolio" : "Preview locked portfolio"}</Button>
+          </section>
+
+          <section className="mt-7">
             {isPlus ? (
               <div className="animate-rise rounded-3xl border border-success/35 bg-success/10 p-4 text-center">
                 <p className="font-display text-sm font-bold text-success">
                   You're a Campus Plus member ✨
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  2x cashback and priority registration are active on your account.
+                   Your multiplier, store discount, portfolio, and card skins are active.
                 </p>
                 {/* PLACEHOLDER: real subscription management will open the
                     RevenueCat / store-managed subscription screen natively. */}
