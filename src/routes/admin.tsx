@@ -375,7 +375,11 @@ function AdminDashboard({ staff, onSignOut }: { staff: StaffSession; onSignOut: 
 
         {tab === "live" && (
           <div className="space-y-6">
-            <CheckpointPanel staff={staff} />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <CheckpointPanel staff={staff} />
+              <ClassRewardsPanel staff={staff} />
+            </div>
+
             <div className="grid gap-6 lg:grid-cols-[minmax(0,340px)_1fr]">
 
             <div className="space-y-3">
